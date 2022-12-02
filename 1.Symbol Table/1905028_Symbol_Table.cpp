@@ -103,6 +103,8 @@ public:
         {
             hash_table[i]=nullptr;
         }
+
+        cout<<"\tScopeTable# "<<Scope_ID<<" created\n";
     }
 
     ~Scope_Table()
@@ -122,6 +124,7 @@ public:
         }
 
         delete[] hash_table;
+        
         
     }
 
@@ -248,4 +251,65 @@ public:
         }
         cout<<"\n";
     }
+};
+
+
+class Symbol_Table
+{   
+private:
+    Scope_Table *curr;
+    int Scope_num_buckets;
+    int size=1;
+
+public:
+
+    Symbol_Table(int len)
+    {
+        
+        Scope_num_buckets=len;
+        curr=new Scope_Table(size++,len,nullptr);
+        
+    }
+
+    ~Symbol_Table()
+    {
+        Scope_Table *temp=curr;
+        while (temp!=nullptr)
+        {
+            curr=curr->getParent();
+            delete temp;
+            temp=curr;
+        }
+        
+    }
+
+    void Enter_Scope()
+    {
+        
+        curr=new Scope_Table(size++,Scope_num_buckets,curr);
+    }
+
+    void Exit_Scope()
+    {
+        if(curr->getParent()==nullptr)
+        {
+            cout<<"\tScopeTable# "<<curr->getID()<<" cannot be removed\n";
+            return;
+        }
+        Scope_Table *temp=curr;
+        curr=curr->getParent();
+        cout<<"\tScopeTable# "<<temp->getID()<<" removed\n";
+        delete temp;
+
+    }
+
+    bool Insert(string name,string type)
+    {
+        if(curr==nullptr)curr=new Scope_Table(size++,Scope_num_buckets,nullptr);
+        return curr->InsertSymbol(name,type);
+    }
+
+    
+
+
 };
