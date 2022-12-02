@@ -82,7 +82,7 @@ private:
 
         for (i = 0; i < len; i++)
         {
-            hash = (str[i]) + (hash << 6) + (hash << 16) - hash;
+            hash = ((str[i]) + (hash << 6) + (hash << 16) - hash)%num_buckets;
         }
 
         return hash%num_buckets;
@@ -150,7 +150,7 @@ public:
         {
             if(temp->getName()==symbol_name)
             {
-                cout<<"\t"<<"'"<<symbol_name<<"' found in ScopeTable# "<<Scope_ID<<" at position "<<i<<", "<<pos<<endl;
+                cout<<"\t"<<"'"<<symbol_name<<"' found in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos<<endl;
                 return temp;
             }
             pos++;
@@ -160,9 +160,92 @@ public:
    }
 
 
+    bool InsertSymbol(string name, string type)
+    {
+        int i = SDBM_Hash(name);
+        if(hash_table[i]==nullptr)
+        {
+            hash_table[i]=new Symbol_Info(name,type);
+            cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", 1"<<endl;
+            return true;
+        }
+
+        Symbol_Info *temp1=hash_table[i];
+        Symbol_Info *temp2=nullptr;
+
+        int pos=1;
+
+        while (temp1!=nullptr)
+        {
+            if(temp1->getName()==name)
+            {
+                cout<<"\t'"<<name<<"' already exists in the current ScopeTable"<<endl;
+                return false;
+            }
+            pos++;
+            temp2=temp1;
+            temp1=temp1->get_nxtptr();
+        }
+        
+        temp2->set_nxtptr(new Symbol_Info(name,type));
+        cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos;
+        return true;
+    }
+
+    bool delete_Symbol(string name)
+    {
+        if(LookUpSymbol(name)==nullptr)
+        {
+            cout<<"\tNot found in the current ScopeTable"<<endl;
+            return false;
+        }
+
+        else
+        {
+            int i = SDBM_Hash(name);
+            Symbol_Info *temp1=hash_table[i];
+            Symbol_Info *temp2=nullptr;
+            int pos=1;
+            while (temp1!=nullptr)
+            {
+                if(temp1->getName()==name)  
+                {
+                    if(temp2==nullptr)
+                    {
+                        hash_table[i]=temp1->get_nxtptr();
+                    }
+                    else
+                    {
+                        temp2->set_nxtptr(temp1->get_nxtptr());
+                    }
+                    delete temp1;
+                    cout<<"\tDeleted '"<<name<<"' from ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos<<endl;
+                    return true;
+                }
+                temp2=temp1;
+                temp1=temp1->get_nxtptr();
+                pos++;
+            }
+            
+        }
+    }
 
 
-
-
-
+    void Print_ScopeTable()
+    {
+        cout<<"\tScopeTable# "<<Scope_ID<<endl;
+        for(int i=0;i<num_buckets;i++)
+        {
+            cout<<"\t"<<i+1<<"--> ";
+            Symbol_Info *curr=hash_table[i];
+            while (curr!=nullptr)
+            {
+                cout<<*curr<<" ";
+                curr=curr->get_nxtptr();                
+            }
+            cout<<"\n";
+            
+        }
+        cout<<"\n";
+    }
 };
