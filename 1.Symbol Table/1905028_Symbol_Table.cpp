@@ -309,7 +309,52 @@ public:
         return curr->InsertSymbol(name,type);
     }
 
-    
+    bool Remove(string name)
+    {
+        if(curr==nullptr)return false;
+        return curr->delete_Symbol(name);
+    }
 
+    Symbol_Info *Lookup(string name)
+    {
+        if(curr==nullptr)return nullptr;
 
+        Symbol_Info *result=curr->LookUpSymbol(name);
+        if(result==nullptr)
+        {
+            Scope_Table *temp=curr->getParent();
+            while(temp!=nullptr)
+            {
+                result=temp->LookUpSymbol(name);
+                if(result!=nullptr)break;
+                temp=temp->getParent();
+
+            }
+        }
+
+        if(result==nullptr)cout<<"\t'"<<name<<"' not found in any of the ScopeTables\n";
+        return result;
+
+    }
+
+    void PrintCurrScope()
+    {
+        if(curr==nullptr)return;
+        curr->Print_ScopeTable();
+    }
+
+    void PrintAllScope()
+    {
+        if(curr==nullptr)return;
+        Scope_Table *temp=curr;
+        while (temp!=nullptr)
+        {
+            temp->Print_ScopeTable();
+            temp=temp->getParent();
+
+        }
+        
+    }
 };
+
+
