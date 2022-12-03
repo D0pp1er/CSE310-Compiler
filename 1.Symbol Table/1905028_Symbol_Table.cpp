@@ -143,7 +143,7 @@ public:
         return parent_Scope;
     }
 
-   Symbol_Info *LookUpSymbol(string symbol_name)
+   Symbol_Info *LookUpSymbol(string symbol_name,bool show=true)
    {
         int i= SDBM_Hash(symbol_name);
         Symbol_Info *temp=hash_table[i];
@@ -153,7 +153,7 @@ public:
         {
             if(temp->getName()==symbol_name)
             {
-                cout<<"\t"<<"'"<<symbol_name<<"' found in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos<<endl;
+                if(show)cout<<"\t"<<"'"<<symbol_name<<"' found in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos<<endl;
                 return temp;
             }
             pos++;
@@ -163,41 +163,51 @@ public:
    }
 
 
+
+
+    
     bool InsertSymbol(string name, string type)
     {
-        int i = SDBM_Hash(name);
-        if(hash_table[i]==nullptr)
+        
+        
+        if(LookUpSymbol(name,false)!=nullptr)
         {
-            hash_table[i]=new Symbol_Info(name,type);
-            cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", 1"<<endl;
+            cout<<"\t'"<<name<<"' already exists in the current ScopeTable"<<endl;
+            return false; 
+        }
+
+        else
+        {
+            int i = SDBM_Hash(name);
+            if(hash_table[i]==nullptr)
+            {
+                hash_table[i]=new Symbol_Info(name,type);
+                cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", 1"<<endl;
+                return true;
+            }
+
+            Symbol_Info *temp1=hash_table[i];
+            Symbol_Info *temp2=nullptr;
+
+            int pos=1;
+
+            while (temp1!=nullptr)
+            {
+                pos++;
+                temp2=temp1;
+                temp1=temp1->get_nxtptr();
+            }
+        
+            temp2->set_nxtptr(new Symbol_Info(name,type));
+            cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos<<endl;
             return true;
         }
-
-        Symbol_Info *temp1=hash_table[i];
-        Symbol_Info *temp2=nullptr;
-
-        int pos=1;
-
-        while (temp1!=nullptr)
-        {
-            if(temp1->getName()==name)
-            {
-                cout<<"\t'"<<name<<"' already exists in the current ScopeTable"<<endl;
-                return false;
-            }
-            pos++;
-            temp2=temp1;
-            temp1=temp1->get_nxtptr();
-        }
-        
-        temp2->set_nxtptr(new Symbol_Info(name,type));
-        cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos;
-        return true;
+       
     }
 
     bool delete_Symbol(string name)
     {
-        if(LookUpSymbol(name)==nullptr)
+        if(LookUpSymbol(name,false)==nullptr)
         {
             cout<<"\tNot found in the current ScopeTable"<<endl;
             return false;
@@ -231,6 +241,7 @@ public:
             }
             
         }
+        return false;
     }
 
 
@@ -300,7 +311,18 @@ public:
         curr=curr->getParent();
         cout<<"\tScopeTable# "<<temp->getID()<<" removed\n";
         delete temp;
+    }
 
+    void ExitAllScope()
+    {
+
+        while(curr!=nullptr)
+        {
+            Scope_Table *temp=curr;
+            curr=curr->getParent();
+            cout<<"\tScopeTable# "<<temp->getID()<<" removed\n";
+            delete temp;
+        }
     }
 
     bool Insert(string name,string type)
@@ -353,8 +375,219 @@ public:
             temp=temp->getParent();
 
         }
-        
     }
+
+    
 };
+
+
+int main()
+{
+    freopen("inputCompilerOne.txt","r",stdin);
+    freopen("outputTwo.txt","w",stdout);
+    int n;
+    cin>>n;
+    int cmdNumber=0;
+    Symbol_Table st(n);
+    char ch;
+    int cnt=0;
+
+    while(true)
+    {
+        cout<<"Cmd "<<++cmdNumber<<": ";
+        cin>>ch;
+        //cout<<"Cmd "<<cmdNumber<<": ";
+        cout<<ch;
+        string str[2];
+        //string temp[100]="FAKA";
+        if(ch=='I')
+        {
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<2)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+                if(cnt!=2){
+                    cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+                }
+                else
+                    st.Insert(str[0],str[1]);
+            //bool isInserted
+        }
+        if(ch=='L')
+        {
+            //cin>>str[0];
+
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<1)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+                if(cnt!=1){
+                    cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+                }
+                else
+                    st.Lookup(str[0]);
+        }
+        if(ch=='D')
+        {
+            //cin>>str[0];
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<1)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+                if(cnt!=1){
+                    cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+                }
+                else
+                    st.Remove(str[0]);
+        }
+        if(ch=='P')
+        {
+            //char chTwo;
+            //cin>>chTwo;
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<1)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+                if(cnt!=1){
+                    cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+                }
+                else
+                {
+                    if(str[0]=="A")
+                    {
+                        st.PrintAllScope();
+                    }
+                    else if(str[0]=="C")
+                    {
+                        st.PrintCurrScope();
+                    }
+                }
+
+        }
+        if(ch=='S')
+        {
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<0)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+                if(cnt!=0){
+                    cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+                }
+                else
+                    st.Enter_Scope();
+        }
+        if(ch=='E')
+        {
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<0)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+                if(cnt!=0){
+                    cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+                }
+                else
+                    st.Exit_Scope();
+        }
+        if(ch=='Q')
+        {
+            string input;
+            int cnt=0;
+
+            getline(cin,input);
+            cout<<input<<endl<<"    ";
+            stringstream strStream(input);
+            string temp;
+
+            while(strStream>>temp){
+
+                if(cnt<0)
+                {
+                    str[cnt]=temp;
+                }
+            cnt++;
+            }
+            if(cnt!=0){
+                cout<<"  Number of parameters mismatch for the command "<<ch<<endl;
+            }
+            else
+            {
+                st.ExitAllScope();
+                break;
+            }
+        }
+    }
+}
 
 
