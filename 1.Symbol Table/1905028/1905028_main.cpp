@@ -1,6 +1,6 @@
 
 #include<bits/stdc++.h>
-#include "SymbolTable.h"
+#include "1905028_SymbolTable.h"
 using namespace std;
 
 string Ins[3];
@@ -17,10 +17,10 @@ void ProcessInput(int c,char cmd)
         t++;
     }
     if(t!=c)
-    {   
+    {
         cout<<"\tNumber of parameters mismatch for the command "<<cmd<<endl;
         Ins[2]="F";
-        
+
     }
     else Ins[2]="T";
 }
@@ -28,17 +28,17 @@ void ProcessInput(int c,char cmd)
 
 int main()
 {
-    freopen("inputCompilerOne.txt","r",stdin);
-    freopen("output22.txt","w",stdout);
+    freopen("sample_input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
 
     int len;
     cin>>len;
     Symbol_Table symboltable(len);
     int cmd_num=1;
     char Instruction;
-    
+
     while (1)
-    {   
+    {
         cin>>Instruction;
         cout<<"Cmd "<<cmd_num++<<": "<<Instruction;
         switch(Instruction)
@@ -101,5 +101,5 @@ int main()
 
 
     }
-    
+
 }
