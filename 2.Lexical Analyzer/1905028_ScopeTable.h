@@ -13,13 +13,13 @@ private:
 
     int SDBM_Hash(string str)
     {
-        unsigned int hash = 0;
+        unsigned long long hash = 0;
         unsigned int i = 0;
         unsigned int len = str.length();
 
         for (i = 0; i < len; i++)
         {
-            hash = ((str[i]) + (hash << 6) + (hash << 16) - hash)%num_buckets;
+            hash = ((str[i]) + (hash << 6) + (hash << 16) - hash);
         }
 
         return hash%num_buckets;
@@ -109,7 +109,7 @@ public:
 
         if(LookUpSymbol(name,false)!=nullptr)
         {
-            cout<<"\t'"<<name<<"' already exists in the current ScopeTable"<<endl;
+            cout<<"\t"<<name<<" already exists in the current ScopeTable"<<endl;
             return false;
         }
 

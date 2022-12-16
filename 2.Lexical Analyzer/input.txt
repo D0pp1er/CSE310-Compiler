@@ -20,5 +20,9 @@ def
 kere nilo 
 // It is a\
 	fun course
-/**abc
-def
+@
+"abcd
+"abcd\
+efgh
+ijk"
+char str[] = "hello\tworld";

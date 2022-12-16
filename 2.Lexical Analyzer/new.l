@@ -1,6 +1,6 @@
 %option noyywrap
 
-	// %xString_State
+%x STRING_STATE
 %x SINGLE_LINE_COMMENT_STATE
 %x MULTILINE_COMMENT_STATE
 
@@ -19,13 +19,14 @@ int line_count=1;
 int lexeme_start_line=0; 
 int errors=0;
 string current_lexeme;
-
+string str_token;
+bool single_line_string=true;
 
 ofstream tokenout;
 
 
 
-int bucket=7;
+int bucket=10;
 Symbol_Table symbolTable(bucket);
 
 string Uppercase(string temp)
@@ -75,6 +76,23 @@ void Print_error(int l, string s,string msg)
 	cout<<"Error at line# "<<l<<": "<<msg<<" "<<s<<"\n";
 }
 
+string ESC_IN_STRING(string temp)
+{
+	// cout<<"In escape processor\n";
+	if(temp[1]=='n')return "\n";
+	else if(temp[1]=='a')return "\a";
+	else if(temp[1]=='t')return "\t";
+	else if(temp[1]=='\\')return "\\";
+	else if(temp[1]=='\'')return "\'";
+	else if(temp[1]=='r')return "\r";
+	else if(temp[1]=='b')return "\b";
+	else if(temp[1]=='0')return "\0";
+	else if(temp[1]=='v')return "\v";
+	else if(temp[1]=='\"')return "\"";
+	else if(temp[1]=='f')return "\f";
+
+	return "z";	
+}
 
 
 
@@ -91,7 +109,7 @@ CONST_INT [0-9]+
 CONST_FLOAT {DIGIT}+(\.{DIGIT}+)?{EXPONENT}?
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 CONST_ESC_CHAR \'\\[ntafrb0\\']
-
+ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 %%
 {WHITESPACE} {}
@@ -119,7 +137,8 @@ CONST_ESC_CHAR \'\\[ntafrb0\\']
 }
 
 {CONST_CHAR}|{CONST_ESC_CHAR} {
-	Print_log(line_count,"CONST_CHAR",yytext);
+	// Print_log(line_count,"CONST_CHAR",Lexeme_To_Char(yytext));
+	cout<<"Line# "<<line_count<<": Token <CONST_CHAR> Lexeme "<<Lexeme_To_Char(yytext)<<" found\n";
 	tokenout << "<CONST_CHAR, " << Lexeme_To_Char(yytext) << ">\n";
 
 }
@@ -266,11 +285,64 @@ CONST_ESC_CHAR \'\\[ntafrb0\\']
 }
 
 
+\" {
+	str_token="";
+	single_line_string=true;
+	current_lexeme=yytext;
+	lexeme_start_line=line_count;
+	BEGIN STRING_STATE;
+}
 
+<STRING_STATE>\" {
+	current_lexeme+=yytext;
+	if(single_line_string){
+		Print_log(lexeme_start_line,"SINGLE LINE STRING",current_lexeme);
+		Print_token("SINGLE LINE STRING",str_token);
+	}
+	else{
+		Print_log(lexeme_start_line,"MULTI LINE STRING",current_lexeme);
+		Print_token("MULTI LINE STRING",str_token);
+	}
+	
+	BEGIN INITIAL;
+}
 
+<STRING_STATE>\\\" {
+	current_lexeme+=yytext;
+	str_token+="\"";
+}
 
+<STRING_STATE>{ESCAPE} {
+	// cout<<"Found escape char\n";
+	str_token+=ESC_IN_STRING(yytext);
+	current_lexeme+=yytext;
+}
 
+<STRING_STATE>\\{NEWLINE} {
+	current_lexeme+=yytext;
+	line_count++;
+	single_line_string=false;
+}
 
+<STRING_STATE>{NEWLINE} {
+	line_count++;errors++;
+	Print_error(lexeme_start_line,current_lexeme,"UNFINISHED_STRING");
+	BEGIN INITIAL;
+}
+
+<STRING_STATE><<EOF>> {
+	line_count--;errors++;
+	Print_error(lexeme_start_line,current_lexeme,"UNFINISHED_STRING");
+	symbolTable.PrintAllScope();
+	cout<<"Total lines: "<<line_count<<"\n";
+	cout<<"Total errors: "<<errors<<"\n";
+	return 0;
+}
+
+<STRING_STATE>. {
+	current_lexeme+=yytext;
+	str_token+=yytext;
+}
 
 <<EOF>> {
 	symbolTable.PrintAllScope();
@@ -281,7 +353,8 @@ CONST_ESC_CHAR \'\\[ntafrb0\\']
 
 
 . {
-	Print_error(line_count,yytext,"UNRECOGNISED CHARACTER");
+	Print_error(line_count,yytext,"UNRECOGNISED_CHARACTER");
+	errors++;
 }
 
 
