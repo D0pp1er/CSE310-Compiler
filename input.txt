@@ -1,0 +1,24 @@
+if 
+else 
++ 1232
+hello
+chudi
+'c'
+'a'
+'\a'
+'\n'
+int main(){
+int x=1;
+x=x*2;
+int y;
+y=x+10;
+}
+/**abc
+def
+	/** ** CSE 310
+	*** Compiler Sessional ***/
+kere nilo 
+// It is a\
+	fun course
+/**abc
+def
