@@ -1,3 +1,3 @@
 flex -o wordcount.c new.l
 g++ wordcount.c -lfl -o wordcount.out
-./wordcount.out sample.txt
+./wordcount.out err.txt

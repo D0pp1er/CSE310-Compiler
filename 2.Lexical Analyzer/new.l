@@ -98,7 +98,7 @@ string ESC_IN_STRING(string temp)
 
 %}
 KEYWORD for|do|while|if|else|switch|case|break|default|continue|return|void|char|int|float|double
-CONST_CHAR '.'|'(\\[tnafrbv0\\\"])'
+CONST_CHAR \'[^\\\n\r]\'
 WHITESPACE [ \t\v]+
 LETTER [a-zA-Z]
 DIGIT [0-9]
@@ -108,7 +108,7 @@ EXPONENT [eE][+-]?{DIGIT}+
 CONST_INT [0-9]+
 CONST_FLOAT {DIGIT}+(\.{DIGIT}+)?{EXPONENT}?
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
-CONST_ESC_CHAR \'\\[ntafrb0\\']
+CONST_ESC_CHAR \'\\[ntafrb0\\']\'
 ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 %%
@@ -275,9 +275,9 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 }
 
 <MULTILINE_COMMENT_STATE><<EOF>> {
-	Print_error(lexeme_start_line,current_lexeme,"UNFINISHED_COMMENT");
+	Print_error(line_count,current_lexeme,"UNFINISHED_COMMENT");
 	errors++;
-	line_count--;
+	// line_count--;
 	symbolTable.PrintAllScope();
 	cout<<"Total lines: "<<line_count<<"\n";
 	cout<<"Total errors: "<<errors<<"\n";
@@ -325,14 +325,14 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 }
 
 <STRING_STATE>{NEWLINE} {
-	line_count++;errors++;
-	Print_error(lexeme_start_line,current_lexeme,"UNFINISHED_STRING");
+	errors++;
+	Print_error(line_count++,current_lexeme,"UNFINISHED_STRING");
 	BEGIN INITIAL;
 }
 
 <STRING_STATE><<EOF>> {
 	line_count--;errors++;
-	Print_error(lexeme_start_line,current_lexeme,"UNFINISHED_STRING");
+	Print_error(line_count,current_lexeme,"UNFINISHED_STRING");
 	symbolTable.PrintAllScope();
 	cout<<"Total lines: "<<line_count<<"\n";
 	cout<<"Total errors: "<<errors<<"\n";
@@ -344,6 +344,38 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	str_token+=yytext;
 }
 
+{DIGIT}*(\.{DIGIT}*)+(\.{DIGIT}*)+{EXPONENT}? {
+	Print_error(line_count,yytext,"TOO_MANY_DECIMAL_POINTS");
+	errors++;
+}
+
+{DIGIT}*[eE][+-]?{DIGIT}*(\.{DIGIT}*)+ {
+	Print_error(line_count,yytext,"ILLFORMED_NUMBER");
+	errors++;
+}
+
+\'.[^\'\r\n]+\' {
+	Print_error(line_count,yytext,"MULTICHAR_CONST_CHAR");
+	errors++;
+}
+
+{CONST_FLOAT}+{IDENTIFIER}+ {
+	Print_error(line_count,yytext,"INVALID_ID_SUFFIX_NUM_PREFIX");
+	errors++;
+}
+
+\'\' {
+	Print_error(line_count,yytext,"EMPTY_CONST_CHAR");
+	errors++;
+}
+
+\'(.|\\\')?[^\'\n\r]* {
+	Print_error(line_count,yytext,"UNFINISHED_CONST_CHAR");
+	errors++;
+}
+
+
+
 <<EOF>> {
 	symbolTable.PrintAllScope();
 	cout<<"Total lines: "<<line_count<<"\n";
@@ -353,7 +385,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 
 . {
-	Print_error(line_count,yytext,"UNRECOGNISED_CHARACTER");
+	Print_error(line_count,yytext,"UNRECOGNIZED_CHAR");
 	errors++;
 }
 
