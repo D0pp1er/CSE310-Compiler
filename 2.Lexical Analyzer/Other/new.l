@@ -165,14 +165,20 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	Print_log(line_count,"RELOP",yytext);
 }
 
+"&"|"|"|"^"|"<<"|">>" {
+	Print_token("BITOP",yytext);
+	Print_log(line_count,"BITOP",yytext);
+}
+
+
 "="  {
 	Print_token("ASSIGNOP",yytext);
 	Print_log(line_count,"ASSIGNOP",yytext);
 }
 
 "&&"|"||"  {
-	Print_token("LOGIOP",yytext);
-	Print_log(line_count,"LOGIOP",yytext);
+	Print_token("LOGICOP",yytext);
+	Print_log(line_count,"LOGICOP",yytext);
 }
 
 "!"  {
