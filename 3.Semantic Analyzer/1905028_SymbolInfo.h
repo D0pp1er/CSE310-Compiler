@@ -197,7 +197,7 @@ public:
 class TreeNode{
     public:
         Symbol_Info *symbol;
-        vector<Symbol_Info*> *Node_param_list;
+        vector<Symbol_Info*> *Nodes_param_list;
         string output_text;
         vector <TreeNode*> childlist;
         int first_line,last_line;
@@ -206,9 +206,24 @@ class TreeNode{
         TreeNode(Symbol_Info *symbol,string output_text)
         {
             this->symbol=symbol;
-            Node_param_list=nullptr;
+            Nodes_param_list=nullptr;
             this->output_text=output_text;
         }
+
+         void printchildren(int space)
+         {
+            if(is_Terminal)cout<<output_text<<endl;
+            else cout<<output_text<<"Line :"<<first_line<<"-"<<last_line<<endl;
+            for (int i = 0; i < childlist.size(); i++)
+            {
+                for (int j = 0; j < space; j++)
+                {
+                    cout<<" ";
+                }
+                childlist[i]->printchildren(space+1);
+            }
+            
+         }
 
         
 

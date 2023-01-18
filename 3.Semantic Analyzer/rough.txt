@@ -1,6 +1,0 @@
-INT : int			 Line no: 1
-INT : int			 Line no: 2
-CHAR : char			 Line no: 10
-CHAR : char			 Line no: 13
-CHAR : char			 Line no: 15
-RETURN : return			 Line no: 28

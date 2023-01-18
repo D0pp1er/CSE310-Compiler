@@ -12,7 +12,7 @@
 #include "1905028_SymbolInfo.h"
 #include "1905028_ScopeTable.h"
 #include "1905028_SymbolTable.h"
-// #include "y.tab.hpp"
+#include "y.tab.h"
 
 using namespace std;
 
@@ -23,7 +23,12 @@ string current_lexeme;
 string str_token;
 bool single_line_string=true;
 
-ofstream logout;
+extern ofstream logout;
+
+//needed for parser
+
+extern YYSTYPE yylval;
+extern int error_count;
 
 
 
@@ -121,9 +126,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return FOR;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+	// //delete tn;
+	return FOR;
+//	cout<<tn->output_text<<endl;
 }
 
 
@@ -134,9 +140,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->is_Terminal=true;	
 	tn->output_text+=(to_string(tn->first_line)+">");
 
-	//yylval.TreeNode=tn;
-	//return DO;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+	// //delete tn;
+	return DO;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -147,9 +154,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return WHILE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+// //delete tn;
+	return WHILE;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -160,9 +168,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
 
-	//yylval.TreeNode=tn;
-	//return IF;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return IF;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -173,9 +182,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
 
-	//yylval.TreeNode=tn;
-	//return ELSE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return ELSE;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -186,9 +196,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
 
-	//yylval.TreeNode=tn;
-	//return SWITCH;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return SWITCH;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -199,9 +210,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->is_Terminal=true;		
 	tn->output_text+=(to_string(tn->first_line)+">");
 
-	//yylval.TreeNode=tn;
-	//return CASE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return CASE;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -211,9 +223,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return BREAK;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return BREAK;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -224,9 +237,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return DEFAULT;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return DEFAULT;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -236,9 +250,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return CONTINUE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return CONTINUE;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -248,9 +263,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return RETURN;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return RETURN;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -260,9 +276,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return VOID;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return VOID;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -272,9 +289,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return CHAR;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return CHAR;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -284,9 +302,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return INT;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return INT;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -296,9 +315,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return FLOAT;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return FLOAT;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -308,9 +328,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return DOUBLE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return DOUBLE;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -322,9 +343,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return CONST_INT;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return CONST_INT;
+//	cout<<tn->output_text<<endl;
 
 
 }
@@ -336,9 +358,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return CONST_FLOAT;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return CONST_FLOAT;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -350,9 +373,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return ID;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return ID;
+//	cout<<tn->output_text<<endl;
 
 
 
@@ -366,9 +390,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return CONST_CHAR;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return CONST_CHAR;
+//	cout<<tn->output_text<<endl;
 
 
 }
@@ -381,9 +406,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return ADDOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return ADDOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -394,9 +420,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return MULOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return MULOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -407,9 +434,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return INCOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return INCOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -420,9 +448,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return DECOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return DECOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -434,9 +463,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return RELOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return RELOP;
+//	cout<<tn->output_text<<endl;
 
 
 
@@ -449,9 +479,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return BITOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return BITOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -463,9 +494,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return ASSIGNOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return ASSIGNOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -476,9 +508,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return LOGICOP;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return LOGICOP;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -489,9 +522,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return NOT;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return NOT;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -502,9 +536,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return LPAREN;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return LPAREN;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -515,9 +550,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return RPAREN;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return RPAREN;
+//	cout<<tn->output_text<<endl;
 
 
 }
@@ -530,9 +566,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return LCURL;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return LCURL;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -544,35 +581,38 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return RCURL;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return RCURL;
+//	cout<<tn->output_text<<endl;
 
 	
 }
 
 "["  {
-	// Print_token("LSQUARE",yytext);
-	Print_log(line_count,"LSQUARE",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LSQUARE"),"LSQUARE : "+ string(yytext)+"\t<Line : ");
+	// Print_token("LTHIRD",yytext);
+	Print_log(line_count,"LTHIRD",yytext);
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LTHIRD"),"LTHIRD : "+ string(yytext)+"\t<Line : ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return LSQUARE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return LTHIRD;
+//	cout<<tn->output_text<<endl;
 
 }
 "]"  {
-	// Print_token("RSQUARE",yytext);
-	Print_log(line_count,"RSQUARE",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RSQUARE"),"RSQUARE : "+ string(yytext)+"\t<Line : ");
+	// Print_token("RTHIRD",yytext);
+	Print_log(line_count,"RTHIRD",yytext);
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RTHIRD"),"RTHIRD : "+ string(yytext)+"\t<Line : ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return RSQUARE;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return RTHIRD;
+//	cout<<tn->output_text<<endl;
 
 
 }
@@ -584,9 +624,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return COMMA;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return COMMA;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -597,9 +638,10 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
-	//yylval.TreeNode=tn;
-	//return SEMICOLON;
-	cout<<tn->output_text<<endl;
+	yylval.treeNode=tn;
+//delete tn;
+	return SEMICOLON;
+//	cout<<tn->output_text<<endl;
 
 }
 
@@ -634,7 +676,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	// symbolTable.PrintAllScope();
 	// logout<<"Total lines: "<<line_count<<"\n";
 	// logout<<"Total errors: "<<errors<<"\n";
-	return 0;
+	// return 0;
 }
 
 "/*" {
@@ -663,7 +705,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	// symbolTable.PrintAllScope();
 	// logout<<"Total lines: "<<line_count<<"\n";
 	// logout<<"Total errors: "<<errors<<"\n";
-	return 0;
+	// return 0;
 }
 
 
@@ -716,9 +758,9 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	line_count--;errors++;
 	Print_error(line_count,current_lexeme,"UNFINISHED_STRING");
 	// symbolTable.PrintAllScope();
-	logout<<"Total lines: "<<line_count<<"\n";
-	logout<<"Total errors: "<<errors<<"\n";
-	return 0;
+	// logout<<"Total lines: "<<line_count<<"\n";
+	// logout<<"Total errors: "<<errors<<"\n";
+	// return 0;
 }
 
 <STRING_STATE>. {
@@ -760,8 +802,8 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 <<EOF>> {
 	// symbolTable.PrintAllScope();
-	logout<<"Total lines: "<<line_count<<"\n";
-	logout<<"Total errors: "<<errors<<"\n";
+	// logout<<"Total lines: "<<line_count<<"\n";
+	// logout<<"Total errors: "<<errors<<"\n";
 	return 0;
 }
 
@@ -781,29 +823,29 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 %%
 
-int main(int argc, char** argv) {
-	if(argc!=2){
-		printf("Please provide input file name and try again\n");
-		return 0;
-	}
+// int main(int argc, char** argv) {
+// 	if(argc!=2){
+// 		printf("Please provide input file name and try again\n");
+// 		return 0;
+// 	}
 	
-	FILE *fin=fopen(argv[1],"r");
-	if(fin==NULL){
-		printf("Cannot open specified file\n");
-		return 0;
-	}
+// 	FILE *fin=fopen(argv[1],"r");
+// 	if(fin==NULL){
+// 		printf("Cannot open specified file\n");
+// 		return 0;
+// 	}
 	
-	// tokenout.open("1905028_token.txt");
-	logout.open("1905028_log.txt");
-	freopen("rough1.txt","w",stdout);
+// 	// tokenout.open("1905028_token.txt");
+// 	logout.open("1905028_log.txt");
+// 	// freopen("rough1.txt","w",stdout);
 
 
 
-	// freopen("1905028_log.txt","w",stdout);
+// 	// freopen("1905028_log.txt","w",stdout);
 
-	yyin= fin;
-	yylex();
-	fclose(yyin);
+// 	yyin= fin;
+// 	yylex();
+// 	fclose(yyin);
 	
-	return 0;
-}
+// 	return 0;
+// }
