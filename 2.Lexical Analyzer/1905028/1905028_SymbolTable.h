@@ -67,7 +67,7 @@ public:
     bool Insert(string name,string type)
     {
         if(curr==nullptr)curr=new Scope_Table(size++,Scope_num_buckets,nullptr);
-        return curr->InsertSymbol(name,type);
+        return curr->InsertSymbol(name,type); 
     }
 
     bool Remove(string name)
