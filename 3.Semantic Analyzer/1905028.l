@@ -23,7 +23,7 @@ string current_lexeme;
 string str_token;
 bool single_line_string=true;
 
-extern ofstream logout;
+// extern ofstream logout;
 
 extern ofstream errorout;
 
@@ -69,7 +69,7 @@ char Lexeme_To_Char(const char* temp)
 
 void Print_log(int l,string t, string lex)
 {
-	logout<<"Line# "<<l<<": Token <"<<t<<"> Lexeme "<<lex<<" found\n";
+	cout<<"Line# "<<l<<": Token <"<<t<<"> Lexeme "<<lex<<" found\n";
 }
 
 
@@ -387,7 +387,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 {CONST_CHAR}|{CONST_ESC_CHAR} {
 	// Print_log(line_count,"CONST_CHAR",Lexeme_To_Char(yytext));
-	logout<<"Line# "<<line_count<<": Token <CONST_CHAR> Lexeme "<<Lexeme_To_Char(yytext)<<" found\n";
+	cout<<"Line# "<<line_count<<": Token <CONST_CHAR> Lexeme "<<Lexeme_To_Char(yytext)<<" found\n";
 	// tokenout << "<CONST_CHAR, " << Lexeme_To_Char(yytext) << ">\n";
 	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_CHAR"),"CONST_CHAR : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;

@@ -15,11 +15,11 @@ extern int yylineno;
 
 int error_count;
 
-ofstream logout("1905028_log_smaple.txt");
+// ofstream cout("1905028_log_smaple.txt");
 ofstream errorout("1905028_error.txt");
+ofstream parseTree("1905028_ParseTree.txt");
 
 
-// ofstream parserout("1905028_parsetree.txt");
 Symbol_Table symbol_table(11);
 
 
@@ -28,6 +28,69 @@ void yyerror(char *s)
 {
 	//write your code
     printf("%s\n",s);
+}
+
+
+void DEFINE_FUNCTION(string func_name,string ret_type,int line,vector<Symbol_Info*> params)
+{
+	Symbol_Info* syminfo=symbol_table.Lookup(func_name);
+	if(syminfo==nullptr)
+	{
+		symbol_table.Insert(func_name,"FUNCTION");
+		syminfo=symbol_table.Lookup(func_name);
+	}
+	else{
+
+		if(syminfo->get_info_type()=="FUNCTION_DECLARATION")
+		{
+			if(syminfo->get_return_type()!=ret_type)
+			{
+				errorout<<"Line# "<<line<<": Return type mismatch with function declaration for \'"<<syminfo->getName()<<"\'\n";
+				error_count++;
+				return;
+			}
+
+			vector<Symbol_Info*> real_param=syminfo->get_Params();
+			if(real_param.size()!=params.size())
+			{
+				errorout<<"Line# "<<line<<": Conflicting types for \'"<<syminfo->getName()<<"\'\n";
+				error_count++;
+				return;
+			}
+			if(params.size()!=0)
+			{
+				for(int i=0;i<real_param.size();i++)
+				{
+					if(real_param[i]->getType()!=params[i]->get_data_type())
+					{
+						errorout<<"Line# "<<line<<": Conflicting types for \'"<<syminfo->getName()<<"\'\n";
+						error_count++;
+						return;
+					}
+				}
+			}
+		}
+		else{
+			errorout<<"Line# "<<line<<": Multiple declaration of  \'"<<syminfo->getName()<<"\'\n";
+			error_count++;
+			return;
+		}
+	}
+
+	if(syminfo->get_info_type()=="FUNCTION_DEFINITION")
+	{
+		errorout<<"Line# "<<line<<": Redefinition of function  \'"<<syminfo->getName()<<"\'\n";
+		error_count++;
+		return;
+	}
+	syminfo->set_info_type("FUNCTION_DEFINITION");
+	syminfo->set_return_type(ret_type);
+	syminfo->set_Param(vector<Symbol_Info*>());
+	for(int i=0;i<params.size();i++)
+	{
+		syminfo->add_Param(new Symbol_Info( params[i]->getName(),params[i]->get_data_type()));
+	}
+
 }
 
 
@@ -72,9 +135,9 @@ start : program
 
 		$$->last_line=$1->last_line;
 
-		logout<<"start : program "<<endl;
+		cout<<"start : program "<<endl;
 
-		$$->printchildren(1);
+		$$->printchildren(1,parseTree);
 
 		delete $$;
 
@@ -97,7 +160,7 @@ program : program unit
 
 		$$->last_line=$2->last_line;
 
-		logout<<"program : program unit "<<endl;
+		cout<<"program : program unit "<<endl;
 	}
 	| unit
 	{
@@ -112,7 +175,7 @@ program : program unit
 
 		$$->last_line=$1->last_line;
 
-		logout<<"program : unit "<<endl;
+		cout<<"program : unit "<<endl;
 	}
 	;
 	
@@ -129,7 +192,7 @@ unit : var_declaration
 
 		$$->last_line=$1->last_line;
 
-		logout<<"unit : var_declaration "<<endl;
+		cout<<"unit : var_declaration "<<endl;
 	}
      | func_declaration
 	 	{
@@ -144,7 +207,7 @@ unit : var_declaration
 
 		$$->last_line=$1->last_line;
 
-		logout<<"unit : func_declaration "<<endl;
+		cout<<"unit : func_declaration "<<endl;
 	}
      | func_definition
 	 	{
@@ -159,7 +222,7 @@ unit : var_declaration
 
 		$$->last_line=$1->last_line;
 
-		logout<<"unit : func_definition "<<endl;
+		cout<<"unit : func_definition "<<endl;
 	}
      ;
      
@@ -182,7 +245,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 
 			$$->last_line=$6->last_line;
 
-			logout<<"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON "<<endl;
+			cout<<"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON "<<endl;
 			//change
 			// DECLARE_FUNCTION($2->symbol->getName(),$1->symbol->getName(),$4->Nodes_param_list);
 			bool inserted=symbol_table.Insert($2->symbol->getName(),"FUNCTION");
@@ -229,7 +292,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 
 			$$->last_line=$5->last_line;
 
-			logout<<"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON "<<endl;
+			cout<<"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON "<<endl;
 			//change
 			// DECLARE_FUNCTION($2->symbol->getName(),$1->symbol->getName());
 			bool inserted=symbol_table.Insert($2->symbol->getName(),"FUNCTION");
@@ -253,7 +316,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 		}
 		;
 		 
-func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement
+func_definition : type_specifier ID LPAREN parameter_list RPAREN{DEFINE_FUNCTION($2->symbol->getName(),$1->symbol->getName(),$1->first_line,$4->Nodes_param_list);} compound_statement
 		{
 			
 			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
@@ -265,15 +328,15 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 			$$->childlist.push_back($3);
 			$$->childlist.push_back($4);
 			$$->childlist.push_back($5);
-			$$->childlist.push_back($6);
+			$$->childlist.push_back($7);
 
 			$$->first_line=$1->first_line;
 
-			$$->last_line=$6->last_line;
+			$$->last_line=$7->last_line;
 
-			logout<<"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement "<<endl;
+			cout<<"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement "<<endl;
 		}
-		| type_specifier ID LPAREN RPAREN compound_statement
+		| type_specifier ID LPAREN RPAREN{DEFINE_FUNCTION($2->symbol->getName(),$1->symbol->getName(),$1->first_line,vector<Symbol_Info*>());} compound_statement
 		{
 			
 			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
@@ -284,13 +347,13 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 			$$->childlist.push_back($2);
 			$$->childlist.push_back($3);
 			$$->childlist.push_back($4);
-			$$->childlist.push_back($5);
+			$$->childlist.push_back($6);
 
 			$$->first_line=$1->first_line;
 
-			$$->last_line=$5->last_line;
+			$$->last_line=$6->last_line;
 
-			logout<<"func_definition : type_specifier ID LPAREN RPAREN compound_statement "<<endl;
+			cout<<"func_definition : type_specifier ID LPAREN RPAREN compound_statement "<<endl;
 		}
  		;				
 
@@ -311,7 +374,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$4->last_line;
 
-			logout<<"parameter_list  : parameter_list COMMA type_specifier ID "<<endl;
+			cout<<"parameter_list  : parameter_list COMMA type_specifier ID "<<endl;
 			//change
 			$1->Nodes_param_list.push_back(new Symbol_Info($4->symbol->getName(),"",$3->symbol->getName()));
 			$$->Nodes_param_list=$1->Nodes_param_list;
@@ -333,7 +396,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$3->last_line;
 
-			logout<<"parameter_list : parameter_list COMMA type_specifier "<<endl;
+			cout<<"parameter_list : parameter_list COMMA type_specifier "<<endl;
 
 			//change
 			$1->Nodes_param_list.push_back(new Symbol_Info($3->symbol->getName(),""));
@@ -355,7 +418,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$2->last_line;
 
-			logout<<"parameter_list : type_specifier ID "<<endl;
+			cout<<"parameter_list : type_specifier ID "<<endl;
 
 			//change
 			$$->Nodes_param_list.push_back(new Symbol_Info($2->symbol->getName(),"",$1->symbol->getName()));
@@ -377,7 +440,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"parameter_list : type_specifier "<<endl;
+			cout<<"parameter_list : type_specifier "<<endl;
 
 			//change
 			$$->Nodes_param_list.push_back(new Symbol_Info($1->symbol->getName(),"",$1->symbol->getName()));
@@ -401,7 +464,7 @@ compound_statement : LCURL statements RCURL
 
 			$$->last_line=$3->last_line;
 
-			logout<<"compound_statement : LCURL statements RCURL "<<endl;
+			cout<<"compound_statement : LCURL statements RCURL "<<endl;
 		}
  		    | LCURL RCURL
 		{
@@ -417,7 +480,7 @@ compound_statement : LCURL statements RCURL
 
 			$$->last_line=$2->last_line;
 
-			logout<<"compound_statement : LCURL RCURL "<<endl;
+			cout<<"compound_statement : LCURL RCURL "<<endl;
 		}
  		    ;
  		    
@@ -436,7 +499,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
 
 			$$->last_line=$3->last_line;
 
-			logout<<"var_declaration : type_specifier declaration_list SEMICOLON "<<endl;
+			cout<<"var_declaration : type_specifier declaration_list SEMICOLON "<<endl;
 
 
 			//change
@@ -480,7 +543,7 @@ type_specifier	: INT
 
 			$$->last_line=$1->last_line;
 
-			logout<<"type_specifier	: INT "<<endl;
+			cout<<"type_specifier	: INT "<<endl;
 		}
  		| FLOAT
 		{
@@ -496,7 +559,7 @@ type_specifier	: INT
 
 			$$->last_line=$1->last_line;
 
-			logout<<"type_specifier	: FLOAT "<<endl;
+			cout<<"type_specifier	: FLOAT "<<endl;
 		}
  		| VOID
 		{
@@ -513,7 +576,7 @@ type_specifier	: INT
 
 			$$->last_line=$1->last_line;
 
-			logout<<"type_specifier	: VOID "<<endl;
+			cout<<"type_specifier	: VOID "<<endl;
 		}
  		;
  		
@@ -532,7 +595,7 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$3->last_line;
 
-			logout<<"declaration_list : declaration_list COMMA ID "<<endl;
+			cout<<"declaration_list : declaration_list COMMA ID "<<endl;
 
 			//change
 			$1->Nodes_param_list.push_back($3->symbol);
@@ -557,7 +620,7 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$6->last_line;
 
-			logout<<"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE "<<endl;
+			cout<<"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE "<<endl;
 			//change
 			$3->symbol->set_array_length($5->symbol->getName());
 			$1->Nodes_param_list.push_back($3->symbol);
@@ -578,7 +641,7 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"declaration_list : ID "<<endl;
+			cout<<"declaration_list : ID "<<endl;
 			//change
 
 			// $$->Nodes_param_list=new vector<Symbol_Info*>();
@@ -603,7 +666,7 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$4->last_line;
 
-			logout<<"declaration_list : ID LSQUARE CONST_INT RSQUARE "<<endl;
+			cout<<"declaration_list : ID LSQUARE CONST_INT RSQUARE "<<endl;
 
 			//creating list for the first symbol
 
@@ -629,7 +692,7 @@ statements : statement
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statements : statement "<<endl;
+			cout<<"statements : statement "<<endl;
 		}
 
 
@@ -647,7 +710,7 @@ statements : statement
 
 			$$->last_line=$2->last_line;
 
-			logout<<"statements : statements statement "<<endl;
+			cout<<"statements : statements statement "<<endl;
 		}
 	   ;
 	   
@@ -664,7 +727,7 @@ statement : var_declaration
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statement : var_declaration "<<endl;
+			cout<<"statement : var_declaration "<<endl;
 		}
 	  | expression_statement
 	  		{
@@ -679,7 +742,7 @@ statement : var_declaration
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statement : expression_statement "<<endl;
+			cout<<"statement : expression_statement "<<endl;
 		}
 	  | compound_statement
 	  		{
@@ -694,7 +757,7 @@ statement : var_declaration
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statement : compound_statement "<<endl;
+			cout<<"statement : compound_statement "<<endl;
 		}
 	  | FOR LPAREN expression_statement expression_statement expression RPAREN statement
 	  		{
@@ -715,7 +778,7 @@ statement : var_declaration
 
 			$$->last_line=$7->last_line;
 
-			logout<<"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement "<<endl;
+			cout<<"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement "<<endl;
 		}
 	  | IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
 	  		{
@@ -734,7 +797,7 @@ statement : var_declaration
 
 			$$->last_line=$5->last_line;
 
-			logout<<"statement : IF LPAREN expression RPAREN statement "<<endl;
+			cout<<"statement : IF LPAREN expression RPAREN statement "<<endl;
 		}
 	  | IF LPAREN expression RPAREN statement ELSE statement
 	  		{
@@ -755,7 +818,7 @@ statement : var_declaration
 
 			$$->last_line=$7->last_line;
 
-			logout<<"statement : IF LPAREN expression RPAREN statement ELSE statement "<<endl;
+			cout<<"statement : IF LPAREN expression RPAREN statement ELSE statement "<<endl;
 		}
 	  | WHILE LPAREN expression RPAREN statement
 	  		{
@@ -774,7 +837,7 @@ statement : var_declaration
 
 			$$->last_line=$5->last_line;
 
-			logout<<"statement : WHILE LPAREN expression RPAREN statement "<<endl;
+			cout<<"statement : WHILE LPAREN expression RPAREN statement "<<endl;
 		}
 	  | PRINTLN LPAREN ID RPAREN SEMICOLON
 	  		{
@@ -793,7 +856,7 @@ statement : var_declaration
 
 			$$->last_line=$5->last_line;
 
-			logout<<"statement : PRINTLN LPAREN ID RPAREN SEMICOLON "<<endl;
+			cout<<"statement : PRINTLN LPAREN ID RPAREN SEMICOLON "<<endl;
 		}
 	  | RETURN expression SEMICOLON
 	  		{
@@ -810,7 +873,7 @@ statement : var_declaration
 
 			$$->last_line=$3->last_line;
 
-			logout<<"statement : RETURN expression SEMICOLON "<<endl;
+			cout<<"statement : RETURN expression SEMICOLON "<<endl;
 		}
 	  ;
 	  
@@ -827,7 +890,7 @@ expression_statement : SEMICOLON
 
 			$$->last_line=$1->last_line;
 
-			logout<<"expression_statement : SEMICOLON "<<endl;
+			cout<<"expression_statement : SEMICOLON "<<endl;
 		}		
 			| expression SEMICOLON 
 		{
@@ -843,7 +906,7 @@ expression_statement : SEMICOLON
 
 			$$->last_line=$2->last_line;
 
-			logout<<"expression_statement : expression SEMICOLON "<<endl;
+			cout<<"expression_statement : expression SEMICOLON "<<endl;
 		}
 			;
 	  
@@ -860,7 +923,7 @@ variable : ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"variable : ID "<<endl;
+			cout<<"variable : ID "<<endl;
 		} 		
 	 | ID LTHIRD expression RTHIRD
 	 		{
@@ -878,7 +941,7 @@ variable : ID
 
 			$$->last_line=$4->last_line;
 
-			logout<<"variable : ID LSQUARE expression RSQUARE "<<endl;
+			cout<<"variable : ID LSQUARE expression RSQUARE "<<endl;
 		} 
 	 ;
 	 
@@ -895,7 +958,7 @@ variable : ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"expression : logic_expression "<<endl;
+			cout<<"expression : logic_expression "<<endl;
 		}	
 	   | variable ASSIGNOP logic_expression
 	   		{
@@ -913,7 +976,7 @@ variable : ID
 
 			$$->last_line=$3->last_line;
 
-			logout<<"expression : variable ASSIGNOP logic_expression "<<endl;
+			cout<<"expression : variable ASSIGNOP logic_expression "<<endl;
 		} 	
 	   ;
 			
@@ -930,7 +993,7 @@ logic_expression : rel_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"logic_expression : rel_expression "<<endl;
+			cout<<"logic_expression : rel_expression "<<endl;
 		} 	
 		 | rel_expression LOGICOP rel_expression
 		 		{
@@ -947,7 +1010,7 @@ logic_expression : rel_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"logic_expression : rel_expression LOGICOP rel_expression "<<endl;
+			cout<<"logic_expression : rel_expression LOGICOP rel_expression "<<endl;
 		} 	
 		 ;
 			
@@ -964,7 +1027,7 @@ rel_expression	: simple_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"rel_expression	: simple_expression "<<endl;
+			cout<<"rel_expression	: simple_expression "<<endl;
 		} 
 		| simple_expression RELOP simple_expression
 				{
@@ -981,7 +1044,7 @@ rel_expression	: simple_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"rel_expression	: simple_expression RELOP simple_expression "<<endl;
+			cout<<"rel_expression	: simple_expression RELOP simple_expression "<<endl;
 		}	
 		;
 				
@@ -998,7 +1061,7 @@ simple_expression : term
 
 			$$->last_line=$1->last_line;
 
-			logout<<"simple_expression : term "<<endl;
+			cout<<"simple_expression : term "<<endl;
 		}
 		  | simple_expression ADDOP term
 		  		{
@@ -1015,7 +1078,7 @@ simple_expression : term
 
 			$$->last_line=$3->last_line;
 
-			logout<<"simple_expression : simple_expression ADDOP term "<<endl;
+			cout<<"simple_expression : simple_expression ADDOP term "<<endl;
 		} 
 		  ;
 					
@@ -1032,7 +1095,7 @@ term :	unary_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"term :	unary_expression "<<endl;
+			cout<<"term :	unary_expression "<<endl;
 		}
      |  term MULOP unary_expression
 	 		{
@@ -1049,7 +1112,7 @@ term :	unary_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"term : term MULOP unary_expression "<<endl;
+			cout<<"term : term MULOP unary_expression "<<endl;
 		}
      ;
 
@@ -1067,7 +1130,7 @@ unary_expression : ADDOP unary_expression
 
 			$$->last_line=$2->last_line;
 
-			logout<<"unary_expression : ADDOP unary_expression "<<endl;
+			cout<<"unary_expression : ADDOP unary_expression "<<endl;
 		}  
 		 | NOT unary_expression
 		 		{
@@ -1084,7 +1147,7 @@ unary_expression : ADDOP unary_expression
 
 			$$->last_line=$2->last_line;
 
-			logout<<"unary_expression : NOT unary_expression "<<endl;
+			cout<<"unary_expression : NOT unary_expression "<<endl;
 		} 
 		 | factor
 		 		{
@@ -1099,7 +1162,7 @@ unary_expression : ADDOP unary_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"unary_expression : factor "<<endl;
+			cout<<"unary_expression : factor "<<endl;
 		} 
 		 ;
 	
@@ -1116,7 +1179,7 @@ factor	: variable
 
 			$$->last_line=$1->last_line;
 
-			logout<<"factor	: variable "<<endl;
+			cout<<"factor	: variable "<<endl;
 		} 
 	| ID LPAREN argument_list RPAREN
 			{
@@ -1134,7 +1197,7 @@ factor	: variable
 
 			$$->last_line=$4->last_line;
 
-			logout<<"factor : ID LPAREN argument_list RPAREN "<<endl;
+			cout<<"factor : ID LPAREN argument_list RPAREN "<<endl;
 		}
 	| LPAREN expression RPAREN
 			{
@@ -1151,7 +1214,7 @@ factor	: variable
 
 			$$->last_line=$3->last_line;
 
-			logout<<"factor : LPAREN expression RPAREN "<<endl;
+			cout<<"factor : LPAREN expression RPAREN "<<endl;
 		}
 	| CONST_INT 
 			{
@@ -1166,7 +1229,7 @@ factor	: variable
 
 			$$->last_line=$1->last_line;
 
-			logout<<"factor : CONST_INT "<<endl;
+			cout<<"factor : CONST_INT "<<endl;
 		}
 	| CONST_FLOAT
 			{
@@ -1181,7 +1244,7 @@ factor	: variable
 
 			$$->last_line=$1->last_line;
 
-			logout<<"factor : CONST_FLOAT "<<endl;
+			cout<<"factor : CONST_FLOAT "<<endl;
 		}
 	| variable INCOP
 			{
@@ -1198,7 +1261,7 @@ factor	: variable
 
 			$$->last_line=$2->last_line;
 
-			logout<<"factor : variable INCOP "<<endl;
+			cout<<"factor : variable INCOP "<<endl;
 		} 
 	| variable DECOP
 			{
@@ -1214,7 +1277,7 @@ factor	: variable
 
 			$$->last_line=$2->last_line;
 
-			logout<<"factor : variable DECOP "<<endl;
+			cout<<"factor : variable DECOP "<<endl;
 		}
 	;
 	
@@ -1231,7 +1294,7 @@ argument_list : arguments
 
 			$$->last_line=$1->last_line;
 
-			logout<<"argument_list : arguments "<<endl;
+			cout<<"argument_list : arguments "<<endl;
 		}
 			  |
 			  		{
@@ -1246,7 +1309,7 @@ argument_list : arguments
 
 			// $$->last_line=$1->last_line;
 
-			// logout<<"argument_list :  "<<endl;
+			// cout<<"argument_list :  "<<endl;
 		}
 			  ;
 	
@@ -1265,7 +1328,7 @@ arguments : arguments COMMA logic_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"arguments : arguments COMMA logic_expression "<<endl;
+			cout<<"arguments : arguments COMMA logic_expression "<<endl;
 		}
 	      | logic_expression
 		  		{
@@ -1280,7 +1343,7 @@ arguments : arguments COMMA logic_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"arguments : logic_expression "<<endl;
+			cout<<"arguments : logic_expression "<<endl;
 
 			//change
 
@@ -1326,7 +1389,7 @@ int main(int argc,char *argv[])
 		return 0;
 	}
 	
-	freopen("1905028_parsetree.txt","w",stdout);
+	freopen("1905028_log.txt","w",stdout);
 
 	yyin= fin;
 	yylineno=1;

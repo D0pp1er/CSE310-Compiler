@@ -143,7 +143,7 @@ public:
 
     bool is_Func()
     {
-        return info_type=="FUNCTION DECLARATION"||info_type=="FUNCTION DEFINITION";
+        return info_type=="FUNCTION_DECLARATION"||info_type=="FUNCTION_DEFINITION";
     }
 
     string get_array_length()
@@ -204,17 +204,17 @@ class TreeNode{
             this->output_text=output_text;
         }
 
-         void printchildren(int space)
+         void printchildren(int space,ofstream &parserout)
          {
-            if(is_Terminal)cout<<output_text<<endl;
-            else cout<<output_text<<" \t<Line: "<<first_line<<"-"<<last_line<<">"<<endl;
+            if(is_Terminal)parserout<<output_text<<endl;
+            else parserout<<output_text<<" \t<Line: "<<first_line<<"-"<<last_line<<">"<<endl;
             for (int i = 0; i < childlist.size(); i++)
             {
                 for (int j = 0; j < space; j++)
                 {
-                    cout<<" ";
+                    parserout<<" ";
                 }
-                childlist[i]->printchildren(space+1);
+                childlist[i]->printchildren(space+1,parserout);
             }
             
          }

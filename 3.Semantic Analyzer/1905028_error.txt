@@ -1,2 +1,3 @@
 Line# 4: Variable or field 'def' declared void
-Line# 6: Redeclaration of function 'kutta'
+Line# 8: Conflicting types for 'shala'
+Line# 9: Return type mismatch with function declaration for 'kutta'
