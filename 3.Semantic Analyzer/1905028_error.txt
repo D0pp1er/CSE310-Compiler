@@ -1,0 +1,2 @@
+Line# 4: Variable or field 'def' declared void
+Line# 6: Redeclaration of function 'kutta'

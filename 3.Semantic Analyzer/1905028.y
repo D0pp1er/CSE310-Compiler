@@ -13,7 +13,12 @@ int yylex(void);
 extern FILE *yyin;
 extern int yylineno;
 
+int error_count;
+
 ofstream logout("1905028_log_smaple.txt");
+ofstream errorout("1905028_error.txt");
+
+
 // ofstream parserout("1905028_parsetree.txt");
 Symbol_Table symbol_table(11);
 
@@ -70,6 +75,8 @@ start : program
 		logout<<"start : program "<<endl;
 
 		$$->printchildren(1);
+
+		delete $$;
 
 
 	}
@@ -176,6 +183,32 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 			$$->last_line=$6->last_line;
 
 			logout<<"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON "<<endl;
+			//change
+			// DECLARE_FUNCTION($2->symbol->getName(),$1->symbol->getName(),$4->Nodes_param_list);
+			bool inserted=symbol_table.Insert($2->symbol->getName(),"FUNCTION");
+			Symbol_Info* temp=symbol_table.Lookup($2->symbol->getName());
+
+			if(inserted)
+			{
+				temp->set_info_type("FUNCTION_DECLARATION");
+				temp->set_return_type($1->symbol->getName());
+
+				for(Symbol_Info* syminfo: $4->Nodes_param_list)
+				{
+					temp->add_Param(new Symbol_Info(syminfo->getName(),syminfo->get_data_type()));
+				}
+
+			}
+			else
+			{
+				if(temp->get_info_type()=="FUNCTION_DECLARATION")
+				{
+					errorout<<"Line# "<<$$->first_line<<": Redeclaration of function \'"<<$2->symbol->getName()<<"\'\n";
+					error_count++;
+				}
+			}
+
+		
 		}
 		| type_specifier ID LPAREN RPAREN SEMICOLON
 		{
@@ -197,6 +230,26 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 			$$->last_line=$5->last_line;
 
 			logout<<"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON "<<endl;
+			//change
+			// DECLARE_FUNCTION($2->symbol->getName(),$1->symbol->getName());
+			bool inserted=symbol_table.Insert($2->symbol->getName(),"FUNCTION");
+			Symbol_Info* temp=symbol_table.Lookup($2->symbol->getName());
+
+			if(inserted)
+			{
+				temp->set_info_type("FUNCTION_DECLARATION");
+				temp->set_return_type($1->symbol->getName());
+
+			}
+			else
+			{
+				if(temp->get_info_type()=="FUNCTION_DECLARATION")
+				{
+					errorout<<"Line# "<<$$->first_line<<": Redeclaration of function \'"<<$2->symbol->getName()<<"\'\n";
+					error_count++;
+				}
+			}
+
 		}
 		;
 		 
@@ -259,6 +312,11 @@ parameter_list  : parameter_list COMMA type_specifier ID
 			$$->last_line=$4->last_line;
 
 			logout<<"parameter_list  : parameter_list COMMA type_specifier ID "<<endl;
+			//change
+			$1->Nodes_param_list.push_back(new Symbol_Info($4->symbol->getName(),"",$3->symbol->getName()));
+			$$->Nodes_param_list=$1->Nodes_param_list;
+
+
 		}
 		| parameter_list COMMA type_specifier
 		{
@@ -276,6 +334,12 @@ parameter_list  : parameter_list COMMA type_specifier ID
 			$$->last_line=$3->last_line;
 
 			logout<<"parameter_list : parameter_list COMMA type_specifier "<<endl;
+
+			//change
+			$1->Nodes_param_list.push_back(new Symbol_Info($3->symbol->getName(),""));
+			$$->Nodes_param_list=$1->Nodes_param_list;
+
+
 		}
  		| type_specifier ID
 		{
@@ -292,6 +356,13 @@ parameter_list  : parameter_list COMMA type_specifier ID
 			$$->last_line=$2->last_line;
 
 			logout<<"parameter_list : type_specifier ID "<<endl;
+
+			//change
+			$$->Nodes_param_list.push_back(new Symbol_Info($2->symbol->getName(),"",$1->symbol->getName()));
+
+
+
+
 		}
 		| type_specifier
 		{
@@ -307,6 +378,10 @@ parameter_list  : parameter_list COMMA type_specifier ID
 			$$->last_line=$1->last_line;
 
 			logout<<"parameter_list : type_specifier "<<endl;
+
+			//change
+			$$->Nodes_param_list.push_back(new Symbol_Info($1->symbol->getName(),"",$1->symbol->getName()));
+
 		}
  		;
 
@@ -362,13 +437,40 @@ var_declaration : type_specifier declaration_list SEMICOLON
 			$$->last_line=$3->last_line;
 
 			logout<<"var_declaration : type_specifier declaration_list SEMICOLON "<<endl;
+
+
+			//change
+			for(Symbol_Info *syminfo: $2->Nodes_param_list)
+			{
+				if($1->symbol->getName()=="void")
+				{
+					errorout<<"Line# "<<$2->first_line<<": Variable or field \'"<<syminfo->getName()<<"\' declared void\n";
+					error_count++;
+					continue;
+				}
+				bool inserted = symbol_table.Insert(syminfo->getName(),syminfo->getType());
+				if(!inserted)
+				{
+					errorout<<"Line# "<<$2->first_line<<": \'"<<syminfo->getName()<<"\' redeclared as different kind of symbol\n";
+					error_count++;
+
+				}else{
+					Symbol_Info* temp=symbol_table.Lookup(syminfo->getName());
+					temp->set_data_type($1->symbol->getName());
+					if(syminfo->is_array())temp->set_array_length(syminfo->get_array_length());
+				}
+			}
+
+
+
 		}
  		 ;
  		 
 type_specifier	: INT
 		{
-			
-			$$=new TreeNode(nullptr,"type_specifier : INT");
+						//change
+			Symbol_Info* symbol=new Symbol_Info("int","INT");
+			$$=new TreeNode(symbol,"type_specifier : INT");
 
 			$$->is_Terminal = false;
 
@@ -382,8 +484,9 @@ type_specifier	: INT
 		}
  		| FLOAT
 		{
-			
-			$$=new TreeNode(nullptr,"type_specifier : FLOAT");
+			//change
+			Symbol_Info* symbol=new Symbol_Info("float","FLOAT");
+			$$=new TreeNode(symbol,"type_specifier : FLOAT");
 
 			$$->is_Terminal = false;
 
@@ -397,8 +500,10 @@ type_specifier	: INT
 		}
  		| VOID
 		{
-			
-			$$=new TreeNode(nullptr,"type_specifier : VOID");
+			//change
+			Symbol_Info* symbol=new Symbol_Info("void","VOID");
+
+			$$=new TreeNode(symbol,"type_specifier : VOID");
 
 			$$->is_Terminal = false;
 
@@ -428,6 +533,11 @@ declaration_list : declaration_list COMMA ID
 			$$->last_line=$3->last_line;
 
 			logout<<"declaration_list : declaration_list COMMA ID "<<endl;
+
+			//change
+			$1->Nodes_param_list.push_back($3->symbol);
+			$$->Nodes_param_list=$1->Nodes_param_list;
+
 		}
  		  | declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
 		{
@@ -448,6 +558,12 @@ declaration_list : declaration_list COMMA ID
 			$$->last_line=$6->last_line;
 
 			logout<<"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE "<<endl;
+			//change
+			$3->symbol->set_array_length($5->symbol->getName());
+			$1->Nodes_param_list.push_back($3->symbol);
+			$$->Nodes_param_list=$1->Nodes_param_list;
+		
+		
 		}
  		  | ID
 		{
@@ -463,8 +579,14 @@ declaration_list : declaration_list COMMA ID
 			$$->last_line=$1->last_line;
 
 			logout<<"declaration_list : ID "<<endl;
+			//change
+
+			// $$->Nodes_param_list=new vector<Symbol_Info*>();
+			$$->Nodes_param_list.push_back($1->symbol);
+
+
 		}
- 		  | ID LTHIRD CONST_INT RTHIRD
+ 		| ID LTHIRD CONST_INT RTHIRD
 
 		{
 			
@@ -482,6 +604,15 @@ declaration_list : declaration_list COMMA ID
 			$$->last_line=$4->last_line;
 
 			logout<<"declaration_list : ID LSQUARE CONST_INT RSQUARE "<<endl;
+
+			//creating list for the first symbol
+
+			// $$->Nodes_param_list=new vector<Symbol_Info*>();
+			$1->symbol->set_array_length($3->symbol->getName()); 
+			$$->Nodes_param_list.push_back($1->symbol);
+
+
+
 		}
  		  ;
  		  
@@ -1150,6 +1281,10 @@ arguments : arguments COMMA logic_expression
 			$$->last_line=$1->last_line;
 
 			logout<<"arguments : logic_expression "<<endl;
+
+			//change
+
+			// $$->Nodes_param_list()
 		}
 	      ;
  

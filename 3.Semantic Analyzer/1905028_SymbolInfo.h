@@ -18,7 +18,7 @@ private:
     //classification variable, func declaration, func definition
     string info_type;
     string array_length;
-    // vector <pair<string,string>> params;
+    vector <Symbol_Info*> params;
 
 
 public:
@@ -31,7 +31,7 @@ public:
         data_type="";
         info_type="VARIABLE";
         array_length="";
-        // params.clear();
+        params.clear();
         // children.clear();
     }
 
@@ -69,7 +69,7 @@ public:
         this->nxtptr=symbol.nxtptr;
         this->data_type=symbol.data_type;
         this->info_type=symbol.info_type;
-        // this->params=symbol.params;
+        this->params=symbol.params;
         this->array_length=symbol.array_length;
         // this->children=symbol.children;
         // this->start_line=symbol.start_line;
@@ -107,13 +107,7 @@ public:
         this->nxtptr=nxtptr;
     }
 
-    // Symbol_Info(const Symbol_Info &syminfo)
-    // {
-    //     this->name=syminfo.name;
-    //     this->type=syminfo.type;
-    //     this->nxtptr=syminfo.nxtptr;
 
-    // }
 
     friend ostream &operator<<(ostream& o, Symbol_Info& syminfo)
     {
@@ -121,20 +115,20 @@ public:
         return o;
     }
 
-    // void add_Param(string data_type,string param)
-    // {
-    //     // params.push_back({data_type,param});
-    // }
+    void add_Param(Symbol_Info *symbol)
+    {
+        params.push_back(symbol);
+    }
 
-    // void set_Param(vector <pair<string,string>> params)
-    // {
-    //     // this->params=params;
-    // }
+    void set_Param(vector <Symbol_Info*> params)
+    {
+        this->params=params;
+    }
 
-    // vector<pair<string,string>> get_Params()
-    // {
-    //     // return params;
-    // }
+    vector<Symbol_Info*> get_Params()
+    {
+        return params;
+    }
 
     void set_return_type(string data_type)
     {
@@ -197,7 +191,7 @@ public:
 class TreeNode{
     public:
         Symbol_Info *symbol;
-        vector<Symbol_Info*> *Nodes_param_list;
+        vector<Symbol_Info*> Nodes_param_list;
         string output_text;
         vector <TreeNode*> childlist;
         int first_line,last_line;
@@ -206,7 +200,7 @@ class TreeNode{
         TreeNode(Symbol_Info *symbol,string output_text)
         {
             this->symbol=symbol;
-            Nodes_param_list=nullptr;
+            // Nodes_param_list=nullptr;
             this->output_text=output_text;
         }
 

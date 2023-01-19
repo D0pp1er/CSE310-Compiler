@@ -25,6 +25,8 @@ bool single_line_string=true;
 
 extern ofstream logout;
 
+extern ofstream errorout;
+
 //needed for parser
 
 extern YYSTYPE yylval;
@@ -79,7 +81,8 @@ void Print_log(int l,string t, string lex)
 
 void Print_error(int l, string s,string msg)
 {
-	// logout<<"Error at line# "<<l<<": "<<msg<<" "<<s<<"\n";
+	errorout<<"Error at line# "<<l<<": "<<msg<<" "<<s<<"\n";
+	error_count++;
 }
 
 string ESC_IN_STRING(string temp)
