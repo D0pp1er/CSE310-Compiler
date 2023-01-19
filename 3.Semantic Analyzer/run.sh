@@ -11,4 +11,4 @@ g++ -w -c -o l.o lex.yy.c
 echo 'Generated the scanner object file'
 g++ y.o l.o -ll -o a
 echo 'All ready, running'
-./a noerror.c
+valgrind -s ./a noerror.c

@@ -122,7 +122,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "for" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -135,7 +135,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "do" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;	
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -150,7 +150,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "while" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -163,7 +163,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "if" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -177,7 +177,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "else" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -191,7 +191,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "switch" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -205,7 +205,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "case" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;		
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -219,7 +219,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "break" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -233,7 +233,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "default" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -246,7 +246,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "continue" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -259,7 +259,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "return" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -272,7 +272,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "void" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -285,7 +285,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "char" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -298,7 +298,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "int" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -311,7 +311,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "float" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -324,7 +324,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "double" {
 	Print_log(line_count,Uppercase(yytext),yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
 	tn->first_line= tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -339,7 +339,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 {CONST_INT} {
 	// Print_token("CONST_INT",yytext);
 	Print_log(line_count,"CONST_INT",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_INT"),"CONST_INT : " + string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_INT"),"CONST_INT : " + string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -354,7 +354,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 {CONST_FLOAT} {
 	// Print_token("CONST_FLOAT",yytext);
 	Print_log(line_count,"CONST_FLOAT",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_FLOAT"),"CONST_FLOAT : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_FLOAT"),"CONST_FLOAT : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -369,7 +369,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	// Print_token("ID",yytext);
 	Print_log(line_count,"ID",yytext);
 	// if(symbolTable.Insert(yytext,"ID"))symbolTable.PrintAllScope();
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"ID"),"ID : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"ID"),"ID : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -386,7 +386,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	// Print_log(line_count,"CONST_CHAR",Lexeme_To_Char(yytext));
 	logout<<"Line# "<<line_count<<": Token <CONST_CHAR> Lexeme "<<Lexeme_To_Char(yytext)<<" found\n";
 	// tokenout << "<CONST_CHAR, " << Lexeme_To_Char(yytext) << ">\n";
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_CHAR"),"CONST_CHAR : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"CONST_CHAR"),"CONST_CHAR : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -402,7 +402,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "+"|"-" {
     // Print_token("ADDOP",yytext);
 	Print_log(line_count,"ADDOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"ADDOP"),"ADDOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"ADDOP"),"ADDOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -416,7 +416,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "*"|"/"|"%"  {
 	// Print_token("MULOP",yytext);
 	Print_log(line_count,"MULOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"MULOP"),"MULOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"MULOP"),"MULOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -430,7 +430,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "++" {
 	// Print_token("INCOP",yytext);
 	Print_log(line_count,"INCOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"INCOP"),"INCOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"INCOP"),"INCOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -444,7 +444,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "--" {
 	
 	Print_log(line_count,"DECOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"DECOP"),"DECOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"DECOP"),"DECOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -459,7 +459,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "<"|"<="|">"|">="|"=="|"!="  {   
 	// Print_token("RELOP",yytext);
 	Print_log(line_count,"RELOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RELOP"),"RELOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RELOP"),"RELOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -475,7 +475,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "&"|"|"|"^"|"<<"|">>" {
 	// Print_token("BITOP",yytext);
 	Print_log(line_count,"BITOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"BITOP"),"BITOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"BITOP"),"BITOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -490,7 +490,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "="  {
 	// Print_token("ASSIGNOP",yytext);
 	Print_log(line_count,"ASSIGNOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"ASSIGNOP"),"ASSIGNOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"ASSIGNOP"),"ASSIGNOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -504,7 +504,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "&&"|"||"  {
 	// Print_token("LOGICOP",yytext);
 	Print_log(line_count,"LOGICOP",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LOGICOP"),"LOGICOP : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LOGICOP"),"LOGICOP : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -518,7 +518,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "!"  {
 	// Print_token("NOT",yytext);
 	Print_log(line_count,"NOT",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"NOT"),"NOT : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"NOT"),"NOT : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -532,7 +532,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 "("  {
 	// Print_token("LPAREN",yytext);
 	Print_log(line_count,"LPAREN",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LPAREN"),"LPAREN : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LPAREN"),"LPAREN : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -546,7 +546,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 ")"  {
 	// Print_token("RPAREN",yytext);
 	Print_log(line_count,"RPAREN",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RAREN"),"RPAREN : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RAREN"),"RPAREN : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -562,7 +562,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	// Print_token("LCURL",yytext);
 	Print_log(line_count,"LCURL",yytext);
     // symbolTable.Enter_Scope();
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LCURL"),"LCURL : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LCURL"),"LCURL : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -577,7 +577,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 	// Print_token("RCURL",yytext);
 	Print_log(line_count,"RCURL",yytext);
     // symbolTable.Exit_Scope();
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RCURL"),"RCURL : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RCURL"),"RCURL : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -591,8 +591,8 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 
 "["  {
 	// Print_token("LTHIRD",yytext);
-	Print_log(line_count,"LTHIRD",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LTHIRD"),"LTHIRD : "+ string(yytext)+"\t<Line : ");
+	Print_log(line_count,"LSQUARE",yytext);
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"LSQUARE"),"LSQUARE : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -604,8 +604,8 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 }
 "]"  {
 	// Print_token("RTHIRD",yytext);
-	Print_log(line_count,"RTHIRD",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RTHIRD"),"RTHIRD : "+ string(yytext)+"\t<Line : ");
+	Print_log(line_count,"RSQUARE",yytext);
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"RSQUARE"),"RSQUARE : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -620,7 +620,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 ","  {
 	// Print_token("COMMA",yytext);
 	Print_log(line_count,"COMMA",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"COMMA"),"COMMA : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"COMMA"),"COMMA : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");
@@ -634,7 +634,7 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 ";"  {
 	// Print_token("SEMICOLON",yytext);
 	Print_log(line_count,"SEMICOLON",yytext);
-	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"SEMICOLON"),"SEMICOLON : "+ string(yytext)+"\t<Line : ");
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,"SEMICOLON"),"SEMICOLON : "+ string(yytext)+"\t<Line: ");
 	tn->first_line=tn->last_line=yylineno;
 	tn->is_Terminal=true;
 	tn->output_text+=(to_string(tn->first_line)+">");

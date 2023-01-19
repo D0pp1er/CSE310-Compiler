@@ -57,7 +57,7 @@ start : program
 	{
 		//write your code in this block in all the similar blocks below
 
-		$$=new TreeNode(nullptr,"start : program\t");
+		$$=new TreeNode(nullptr,"start : program");
 
 		$$->is_Terminal = false;
 
@@ -67,7 +67,7 @@ start : program
 
 		$$->last_line=$1->last_line;
 
-		logout<<"start : program"<<endl;
+		logout<<"start : program "<<endl;
 
 		$$->printchildren(1);
 
@@ -78,7 +78,7 @@ start : program
 program : program unit 
 	{
 		
-		$$=new TreeNode(nullptr,"program : program unit\t");
+		$$=new TreeNode(nullptr,"program : program unit");
 
 		$$->is_Terminal = false;
 
@@ -90,12 +90,12 @@ program : program unit
 
 		$$->last_line=$2->last_line;
 
-		logout<<"program : program unit"<<endl;
+		logout<<"program : program unit "<<endl;
 	}
 	| unit
 	{
 			
-		$$=new TreeNode(nullptr,"program : unit\t");
+		$$=new TreeNode(nullptr,"program : unit");
 
 		$$->is_Terminal = false;
 
@@ -105,14 +105,14 @@ program : program unit
 
 		$$->last_line=$1->last_line;
 
-		logout<<"program : unit"<<endl;
+		logout<<"program : unit "<<endl;
 	}
 	;
 	
 unit : var_declaration
 	{
 		
-		$$=new TreeNode(nullptr,"unit : var_declaration\t");
+		$$=new TreeNode(nullptr,"unit : var_declaration");
 
 		$$->is_Terminal = false;
 
@@ -122,12 +122,12 @@ unit : var_declaration
 
 		$$->last_line=$1->last_line;
 
-		logout<<"unit : var_declaration"<<endl;
+		logout<<"unit : var_declaration "<<endl;
 	}
      | func_declaration
 	 	{
 		
-		$$=new TreeNode(nullptr,"unit : func_declaration\t");
+		$$=new TreeNode(nullptr,"unit : func_declaration");
 
 		$$->is_Terminal = false;
 
@@ -137,12 +137,12 @@ unit : var_declaration
 
 		$$->last_line=$1->last_line;
 
-		logout<<"unit : func_declaration"<<endl;
+		logout<<"unit : func_declaration "<<endl;
 	}
      | func_definition
 	 	{
 		
-		$$=new TreeNode(nullptr,"start : func_definition\t");
+		$$=new TreeNode(nullptr,"unit : func_definition");
 
 		$$->is_Terminal = false;
 
@@ -152,14 +152,14 @@ unit : var_declaration
 
 		$$->last_line=$1->last_line;
 
-		logout<<"func_definition"<<endl;
+		logout<<"unit : func_definition "<<endl;
 	}
      ;
      
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 		{
 			
-			$$=new TreeNode(nullptr,"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON\t");
+			$$=new TreeNode(nullptr,"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -175,12 +175,12 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 
 			$$->last_line=$6->last_line;
 
-			logout<<"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON"<<endl;
+			logout<<"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON "<<endl;
 		}
 		| type_specifier ID LPAREN RPAREN SEMICOLON
 		{
 			
-			$$=new TreeNode(nullptr,"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON\t");
+			$$=new TreeNode(nullptr,"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -196,14 +196,14 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 
 			$$->last_line=$5->last_line;
 
-			logout<<"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON"<<endl;
+			logout<<"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON "<<endl;
 		}
 		;
 		 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement
 		{
 			
-			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement\t");
+			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
 
 			$$->is_Terminal = false;
 
@@ -218,12 +218,12 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 
 			$$->last_line=$6->last_line;
 
-			logout<<"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement"<<endl;
+			logout<<"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement "<<endl;
 		}
 		| type_specifier ID LPAREN RPAREN compound_statement
 		{
 			
-			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN RPAREN compound_statement\t");
+			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
 
 			$$->is_Terminal = false;
 
@@ -237,7 +237,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 
 			$$->last_line=$5->last_line;
 
-			logout<<"func_definition : type_specifier ID LPAREN RPAREN compound_statement"<<endl;
+			logout<<"func_definition : type_specifier ID LPAREN RPAREN compound_statement "<<endl;
 		}
  		;				
 
@@ -245,7 +245,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 parameter_list  : parameter_list COMMA type_specifier ID
 		{
 			
-			$$=new TreeNode(nullptr,"parameter_list  : parameter_list COMMA type_specifier ID\t");
+			$$=new TreeNode(nullptr,"parameter_list : parameter_list COMMA type_specifier ID");
 
 			$$->is_Terminal = false;
 
@@ -258,12 +258,12 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$4->last_line;
 
-			logout<<"parameter_list  : parameter_list COMMA type_specifier ID"<<endl;
+			logout<<"parameter_list  : parameter_list COMMA type_specifier ID "<<endl;
 		}
 		| parameter_list COMMA type_specifier
 		{
 			
-			$$=new TreeNode(nullptr,"parameter_list : parameter_list COMMA type_specifier\t");
+			$$=new TreeNode(nullptr,"parameter_list : parameter_list COMMA type_specifier");
 
 			$$->is_Terminal = false;
 
@@ -275,12 +275,12 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$3->last_line;
 
-			logout<<"parameter_list : parameter_list COMMA type_specifier"<<endl;
+			logout<<"parameter_list : parameter_list COMMA type_specifier "<<endl;
 		}
  		| type_specifier ID
 		{
 			
-			$$=new TreeNode(nullptr,"parameter_list : type_specifier ID\t");
+			$$=new TreeNode(nullptr,"parameter_list : type_specifier ID");
 
 			$$->is_Terminal = false;
 
@@ -291,12 +291,12 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$2->last_line;
 
-			logout<<"parameter_list : type_specifier ID"<<endl;
+			logout<<"parameter_list : type_specifier ID "<<endl;
 		}
 		| type_specifier
 		{
 			
-			$$=new TreeNode(nullptr,"parameter_list : type_specifier\t");
+			$$=new TreeNode(nullptr,"parameter_list : type_specifier");
 
 			$$->is_Terminal = false;
 
@@ -306,7 +306,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"parameter_list : type_specifier"<<endl;
+			logout<<"parameter_list : type_specifier "<<endl;
 		}
  		;
 
@@ -314,7 +314,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
 compound_statement : LCURL statements RCURL
 		{
 			
-			$$=new TreeNode(nullptr,"compound_statement : LCURL statements RCURL\t");
+			$$=new TreeNode(nullptr,"compound_statement : LCURL statements RCURL");
 
 			$$->is_Terminal = false;
 
@@ -326,12 +326,12 @@ compound_statement : LCURL statements RCURL
 
 			$$->last_line=$3->last_line;
 
-			logout<<"compound_statement : LCURL statements RCURL"<<endl;
+			logout<<"compound_statement : LCURL statements RCURL "<<endl;
 		}
  		    | LCURL RCURL
 		{
 			
-			$$=new TreeNode(nullptr,"compound_statement : LCURL RCURL\t");
+			$$=new TreeNode(nullptr,"compound_statement : LCURL RCURL");
 
 			$$->is_Terminal = false;
 
@@ -342,14 +342,14 @@ compound_statement : LCURL statements RCURL
 
 			$$->last_line=$2->last_line;
 
-			logout<<"compound_statement : LCURL RCURL"<<endl;
+			logout<<"compound_statement : LCURL RCURL "<<endl;
 		}
  		    ;
  		    
 var_declaration : type_specifier declaration_list SEMICOLON
 		{
 			
-			$$=new TreeNode(nullptr,"var_declaration : type_specifier declaration_list SEMICOLON\t");
+			$$=new TreeNode(nullptr,"var_declaration : type_specifier declaration_list SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -361,14 +361,14 @@ var_declaration : type_specifier declaration_list SEMICOLON
 
 			$$->last_line=$3->last_line;
 
-			logout<<"var_declaration : type_specifier declaration_list SEMICOLON"<<endl;
+			logout<<"var_declaration : type_specifier declaration_list SEMICOLON "<<endl;
 		}
  		 ;
  		 
 type_specifier	: INT
 		{
 			
-			$$=new TreeNode(nullptr,"type_specifier	: INT\t");
+			$$=new TreeNode(nullptr,"type_specifier : INT");
 
 			$$->is_Terminal = false;
 
@@ -378,12 +378,12 @@ type_specifier	: INT
 
 			$$->last_line=$1->last_line;
 
-			logout<<"type_specifier	: INT"<<endl;
+			logout<<"type_specifier	: INT "<<endl;
 		}
  		| FLOAT
 		{
 			
-			$$=new TreeNode(nullptr,"type_specifier	: FLOAT\t");
+			$$=new TreeNode(nullptr,"type_specifier : FLOAT");
 
 			$$->is_Terminal = false;
 
@@ -393,12 +393,12 @@ type_specifier	: INT
 
 			$$->last_line=$1->last_line;
 
-			logout<<"type_specifier	: FLOAT"<<endl;
+			logout<<"type_specifier	: FLOAT "<<endl;
 		}
  		| VOID
 		{
 			
-			$$=new TreeNode(nullptr,"type_specifier	: VOID\t");
+			$$=new TreeNode(nullptr,"type_specifier : VOID");
 
 			$$->is_Terminal = false;
 
@@ -408,14 +408,14 @@ type_specifier	: INT
 
 			$$->last_line=$1->last_line;
 
-			logout<<"type_specifier	: VOID"<<endl;
+			logout<<"type_specifier	: VOID "<<endl;
 		}
  		;
  		
 declaration_list : declaration_list COMMA ID
 		{
 			
-			$$=new TreeNode(nullptr,"declaration_list : declaration_list COMMA ID\t");
+			$$=new TreeNode(nullptr,"declaration_list : declaration_list COMMA ID");
 
 			$$->is_Terminal = false;
 
@@ -427,12 +427,12 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$3->last_line;
 
-			logout<<"declaration_list : declaration_list COMMA ID"<<endl;
+			logout<<"declaration_list : declaration_list COMMA ID "<<endl;
 		}
  		  | declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
 		{
 			
-			$$=new TreeNode(nullptr,"declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD\t");
+			$$=new TreeNode(nullptr,"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
 
 			$$->is_Terminal = false;
 
@@ -447,12 +447,12 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$6->last_line;
 
-			logout<<"declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD"<<endl;
+			logout<<"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE "<<endl;
 		}
  		  | ID
 		{
 			
-			$$=new TreeNode(nullptr,"declaration_list : ID\t");
+			$$=new TreeNode(nullptr,"declaration_list : ID");
 
 			$$->is_Terminal = false;
 
@@ -462,13 +462,13 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"declaration_list : ID"<<endl;
+			logout<<"declaration_list : ID "<<endl;
 		}
  		  | ID LTHIRD CONST_INT RTHIRD
 
 		{
 			
-			$$=new TreeNode(nullptr,"declaration_list : ID LTHIRD CONST_INT RTHIRD\t");
+			$$=new TreeNode(nullptr,"declaration_list : ID LSQUARE CONST_INT RSQUARE");
 
 			$$->is_Terminal = false;
 
@@ -481,14 +481,14 @@ declaration_list : declaration_list COMMA ID
 
 			$$->last_line=$4->last_line;
 
-			logout<<"declaration_list : ID LTHIRD CONST_INT RTHIRD"<<endl;
+			logout<<"declaration_list : ID LSQUARE CONST_INT RSQUARE "<<endl;
 		}
  		  ;
  		  
 statements : statement
 		{
 			
-			$$=new TreeNode(nullptr,"statements : statement\t");
+			$$=new TreeNode(nullptr,"statements : statement");
 
 			$$->is_Terminal = false;
 
@@ -498,14 +498,14 @@ statements : statement
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statements : statement"<<endl;
+			logout<<"statements : statement "<<endl;
 		}
 
 
 	   | statements statement
 		{
 			
-			$$=new TreeNode(nullptr,"statements : statements statement\t");
+			$$=new TreeNode(nullptr,"statements : statements statement");
 
 			$$->is_Terminal = false;
 
@@ -516,14 +516,14 @@ statements : statement
 
 			$$->last_line=$2->last_line;
 
-			logout<<"statements : statements statement"<<endl;
+			logout<<"statements : statements statement "<<endl;
 		}
 	   ;
 	   
 statement : var_declaration
 		{
 			
-			$$=new TreeNode(nullptr,"statement : var_declaration\t");
+			$$=new TreeNode(nullptr,"statement : var_declaration");
 
 			$$->is_Terminal = false;
 
@@ -533,12 +533,12 @@ statement : var_declaration
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statement : var_declaration"<<endl;
+			logout<<"statement : var_declaration "<<endl;
 		}
 	  | expression_statement
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : expression_statement\t");
+			$$=new TreeNode(nullptr,"statement : expression_statement");
 
 			$$->is_Terminal = false;
 
@@ -548,12 +548,12 @@ statement : var_declaration
 
 			$$->last_line=$1->last_line;
 
-			logout<<"start : expression_statement"<<endl;
+			logout<<"statement : expression_statement "<<endl;
 		}
 	  | compound_statement
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : compound_statement\t");
+			$$=new TreeNode(nullptr,"statement : compound_statement");
 
 			$$->is_Terminal = false;
 
@@ -563,12 +563,12 @@ statement : var_declaration
 
 			$$->last_line=$1->last_line;
 
-			logout<<"statement : compound_statement"<<endl;
+			logout<<"statement : compound_statement "<<endl;
 		}
 	  | FOR LPAREN expression_statement expression_statement expression RPAREN statement
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement\t");
+			$$=new TreeNode(nullptr,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
 
 			$$->is_Terminal = false;
 
@@ -584,12 +584,12 @@ statement : var_declaration
 
 			$$->last_line=$7->last_line;
 
-			logout<<"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement"<<endl;
+			logout<<"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement "<<endl;
 		}
 	  | IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement\t");
+			$$=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement");
 
 			$$->is_Terminal = false;
 
@@ -603,12 +603,12 @@ statement : var_declaration
 
 			$$->last_line=$5->last_line;
 
-			logout<<"statement : IF LPAREN expression RPAREN statement"<<endl;
+			logout<<"statement : IF LPAREN expression RPAREN statement "<<endl;
 		}
 	  | IF LPAREN expression RPAREN statement ELSE statement
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement ELSE statement\t");
+			$$=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement ELSE statement");
 
 			$$->is_Terminal = false;
 
@@ -624,12 +624,12 @@ statement : var_declaration
 
 			$$->last_line=$7->last_line;
 
-			logout<<"statement : IF LPAREN expression RPAREN statement ELSE statement"<<endl;
+			logout<<"statement : IF LPAREN expression RPAREN statement ELSE statement "<<endl;
 		}
 	  | WHILE LPAREN expression RPAREN statement
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : WHILE LPAREN expression RPAREN statement\t");
+			$$=new TreeNode(nullptr,"statement : WHILE LPAREN expression RPAREN statement");
 
 			$$->is_Terminal = false;
 
@@ -643,12 +643,12 @@ statement : var_declaration
 
 			$$->last_line=$5->last_line;
 
-			logout<<"statement : WHILE LPAREN expression RPAREN statement"<<endl;
+			logout<<"statement : WHILE LPAREN expression RPAREN statement "<<endl;
 		}
 	  | PRINTLN LPAREN ID RPAREN SEMICOLON
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON\t");
+			$$=new TreeNode(nullptr,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -662,12 +662,12 @@ statement : var_declaration
 
 			$$->last_line=$5->last_line;
 
-			logout<<"statement : PRINTLN LPAREN ID RPAREN SEMICOLON"<<endl;
+			logout<<"statement : PRINTLN LPAREN ID RPAREN SEMICOLON "<<endl;
 		}
 	  | RETURN expression SEMICOLON
 	  		{
 			
-			$$=new TreeNode(nullptr,"statement : RETURN expression SEMICOLON\t");
+			$$=new TreeNode(nullptr,"statement : RETURN expression SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -679,14 +679,14 @@ statement : var_declaration
 
 			$$->last_line=$3->last_line;
 
-			logout<<"statement : RETURN expression SEMICOLON"<<endl;
+			logout<<"statement : RETURN expression SEMICOLON "<<endl;
 		}
 	  ;
 	  
 expression_statement : SEMICOLON	
 		{
 			
-			$$=new TreeNode(nullptr,"expression_statement : SEMICOLON\t");
+			$$=new TreeNode(nullptr,"expression_statement : SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -696,12 +696,12 @@ expression_statement : SEMICOLON
 
 			$$->last_line=$1->last_line;
 
-			logout<<"expression_statement : SEMICOLON"<<endl;
+			logout<<"expression_statement : SEMICOLON "<<endl;
 		}		
 			| expression SEMICOLON 
 		{
 			
-			$$=new TreeNode(nullptr,"expression_statement : expression SEMICOLON\t");
+			$$=new TreeNode(nullptr,"expression_statement : expression SEMICOLON");
 
 			$$->is_Terminal = false;
 
@@ -712,14 +712,14 @@ expression_statement : SEMICOLON
 
 			$$->last_line=$2->last_line;
 
-			logout<<"expression_statement : expression SEMICOLON"<<endl;
+			logout<<"expression_statement : expression SEMICOLON "<<endl;
 		}
 			;
 	  
 variable : ID
 		{
 			
-			$$=new TreeNode(nullptr,"variable : ID\t");
+			$$=new TreeNode(nullptr,"variable : ID");
 
 			$$->is_Terminal = false;
 
@@ -729,12 +729,12 @@ variable : ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"variable : ID"<<endl;
+			logout<<"variable : ID "<<endl;
 		} 		
 	 | ID LTHIRD expression RTHIRD
 	 		{
 			
-			$$=new TreeNode(nullptr,"variable : ID LTHIRD expression RTHIRD\t");
+			$$=new TreeNode(nullptr,"variable : ID LSQUARE expression RSQUARE");
 
 			$$->is_Terminal = false;
 
@@ -747,14 +747,14 @@ variable : ID
 
 			$$->last_line=$4->last_line;
 
-			logout<<"variable : ID LTHIRD expression RTHIRD"<<endl;
+			logout<<"variable : ID LSQUARE expression RSQUARE "<<endl;
 		} 
 	 ;
 	 
  expression : logic_expression
  		{
 			
-			$$=new TreeNode(nullptr,"expression : logic_expression\t");
+			$$=new TreeNode(nullptr,"expression : logic_expression");
 
 			$$->is_Terminal = false;
 
@@ -764,12 +764,12 @@ variable : ID
 
 			$$->last_line=$1->last_line;
 
-			logout<<"expression : logic_expression"<<endl;
+			logout<<"expression : logic_expression "<<endl;
 		}	
 	   | variable ASSIGNOP logic_expression
 	   		{
 			
-			$$=new TreeNode(nullptr,"expression : variable ASSIGNOP logic_expression\t");
+			$$=new TreeNode(nullptr,"expression : variable ASSIGNOP logic_expression");
 
 			$$->is_Terminal = false;
 
@@ -782,14 +782,14 @@ variable : ID
 
 			$$->last_line=$3->last_line;
 
-			logout<<"expression : variable ASSIGNOP logic_expression"<<endl;
+			logout<<"expression : variable ASSIGNOP logic_expression "<<endl;
 		} 	
 	   ;
 			
 logic_expression : rel_expression
 		{
 			
-			$$=new TreeNode(nullptr,"logic_expression : rel_expression\t");
+			$$=new TreeNode(nullptr,"logic_expression : rel_expression");
 
 			$$->is_Terminal = false;
 
@@ -799,12 +799,12 @@ logic_expression : rel_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"logic_expression : rel_expression"<<endl;
+			logout<<"logic_expression : rel_expression "<<endl;
 		} 	
 		 | rel_expression LOGICOP rel_expression
 		 		{
 			
-			$$=new TreeNode(nullptr,"logic_expression : rel_expression LOGICOP rel_expression\t");
+			$$=new TreeNode(nullptr,"logic_expression : rel_expression LOGICOP rel_expression");
 
 			$$->is_Terminal = false;
 
@@ -816,14 +816,14 @@ logic_expression : rel_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"logic_expression : rel_expression LOGICOP rel_expression"<<endl;
+			logout<<"logic_expression : rel_expression LOGICOP rel_expression "<<endl;
 		} 	
 		 ;
 			
 rel_expression	: simple_expression
 		{
 			
-			$$=new TreeNode(nullptr,"rel_expression	: simple_expression\t");
+			$$=new TreeNode(nullptr,"rel_expression : simple_expression");
 
 			$$->is_Terminal = false;
 
@@ -833,12 +833,12 @@ rel_expression	: simple_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"rel_expression	: simple_expression"<<endl;
+			logout<<"rel_expression	: simple_expression "<<endl;
 		} 
 		| simple_expression RELOP simple_expression
 				{
 			
-			$$=new TreeNode(nullptr,"rel_expression	: simple_expression RELOP simple_expression\t");
+			$$=new TreeNode(nullptr,"rel_expression : simple_expression RELOP simple_expression");
 
 			$$->is_Terminal = false;
 
@@ -850,14 +850,14 @@ rel_expression	: simple_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"rel_expression	: simple_expression RELOP simple_expression"<<endl;
+			logout<<"rel_expression	: simple_expression RELOP simple_expression "<<endl;
 		}	
 		;
 				
 simple_expression : term 
 		{
 			
-			$$=new TreeNode(nullptr,"simple_expression : term\t");
+			$$=new TreeNode(nullptr,"simple_expression : term");
 
 			$$->is_Terminal = false;
 
@@ -867,12 +867,12 @@ simple_expression : term
 
 			$$->last_line=$1->last_line;
 
-			logout<<"simple_expression : term"<<endl;
+			logout<<"simple_expression : term "<<endl;
 		}
 		  | simple_expression ADDOP term
 		  		{
 			
-			$$=new TreeNode(nullptr,"simple_expression : simple_expression ADDOP term\t");
+			$$=new TreeNode(nullptr,"simple_expression : simple_expression ADDOP term");
 
 			$$->is_Terminal = false;
 
@@ -884,14 +884,14 @@ simple_expression : term
 
 			$$->last_line=$3->last_line;
 
-			logout<<"simple_expression : simple_expression ADDOP term"<<endl;
+			logout<<"simple_expression : simple_expression ADDOP term "<<endl;
 		} 
 		  ;
 					
 term :	unary_expression
 		{
 			
-			$$=new TreeNode(nullptr,"term :	unary_expression\t");
+			$$=new TreeNode(nullptr,"term : unary_expression");
 
 			$$->is_Terminal = false;
 
@@ -901,12 +901,12 @@ term :	unary_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"term :	unary_expression"<<endl;
+			logout<<"term :	unary_expression "<<endl;
 		}
      |  term MULOP unary_expression
 	 		{
 			
-			$$=new TreeNode(nullptr,"term : term MULOP unary_expression\t");
+			$$=new TreeNode(nullptr,"term : term MULOP unary_expression");
 
 			$$->is_Terminal = false;
 
@@ -918,14 +918,14 @@ term :	unary_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"term : term MULOP unary_expression"<<endl;
+			logout<<"term : term MULOP unary_expression "<<endl;
 		}
      ;
 
 unary_expression : ADDOP unary_expression
 		{
 			
-			$$=new TreeNode(nullptr,"unary_expression : ADDOP unary_expression\t");
+			$$=new TreeNode(nullptr,"unary_expression : ADDOP unary_expression");
 
 			$$->is_Terminal = false;
 
@@ -936,12 +936,12 @@ unary_expression : ADDOP unary_expression
 
 			$$->last_line=$2->last_line;
 
-			logout<<"unary_expression : ADDOP unary_expression"<<endl;
+			logout<<"unary_expression : ADDOP unary_expression "<<endl;
 		}  
 		 | NOT unary_expression
 		 		{
 			
-			$$=new TreeNode(nullptr,"unary_expression : NOT unary_expression\t");
+			$$=new TreeNode(nullptr,"unary_expression : NOT unary_expression");
 
 			$$->is_Terminal = false;
 
@@ -953,12 +953,12 @@ unary_expression : ADDOP unary_expression
 
 			$$->last_line=$2->last_line;
 
-			logout<<"unary_expression : NOT unary_expression"<<endl;
+			logout<<"unary_expression : NOT unary_expression "<<endl;
 		} 
 		 | factor
 		 		{
 			
-			$$=new TreeNode(nullptr,"unary_expression : factor\t");
+			$$=new TreeNode(nullptr,"unary_expression : factor");
 
 			$$->is_Terminal = false;
 
@@ -968,14 +968,14 @@ unary_expression : ADDOP unary_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"unary_expression : factor"<<endl;
+			logout<<"unary_expression : factor "<<endl;
 		} 
 		 ;
 	
 factor	: variable
 		{
 			
-			$$=new TreeNode(nullptr,"factor	: variable\t");
+			$$=new TreeNode(nullptr,"factor : variable");
 
 			$$->is_Terminal = false;
 
@@ -985,12 +985,12 @@ factor	: variable
 
 			$$->last_line=$1->last_line;
 
-			logout<<"factor	: variable"<<endl;
+			logout<<"factor	: variable "<<endl;
 		} 
 	| ID LPAREN argument_list RPAREN
 			{
 			
-			$$=new TreeNode(nullptr,"factor : ID LPAREN argument_list RPAREN\t");
+			$$=new TreeNode(nullptr,"factor : ID LPAREN argument_list RPAREN");
 
 			$$->is_Terminal = false;
 
@@ -1003,12 +1003,12 @@ factor	: variable
 
 			$$->last_line=$4->last_line;
 
-			logout<<"factor : ID LPAREN argument_list RPAREN"<<endl;
+			logout<<"factor : ID LPAREN argument_list RPAREN "<<endl;
 		}
 	| LPAREN expression RPAREN
 			{
 			
-			$$=new TreeNode(nullptr,"factor : LPAREN expression RPAREN\t");
+			$$=new TreeNode(nullptr,"factor : LPAREN expression RPAREN");
 
 			$$->is_Terminal = false;
 
@@ -1020,12 +1020,12 @@ factor	: variable
 
 			$$->last_line=$3->last_line;
 
-			logout<<"factor : LPAREN expression RPAREN"<<endl;
+			logout<<"factor : LPAREN expression RPAREN "<<endl;
 		}
 	| CONST_INT 
 			{
 			
-			$$=new TreeNode(nullptr,"factor : CONST_INT\t");
+			$$=new TreeNode(nullptr,"factor : CONST_INT");
 
 			$$->is_Terminal = false;
 
@@ -1035,12 +1035,12 @@ factor	: variable
 
 			$$->last_line=$1->last_line;
 
-			logout<<"factor : CONST_INT"<<endl;
+			logout<<"factor : CONST_INT "<<endl;
 		}
 	| CONST_FLOAT
 			{
 			
-			$$=new TreeNode(nullptr,"factor : CONST_FLOAT\t");
+			$$=new TreeNode(nullptr,"factor : CONST_FLOAT");
 
 			$$->is_Terminal = false;
 
@@ -1050,12 +1050,12 @@ factor	: variable
 
 			$$->last_line=$1->last_line;
 
-			logout<<"factor : CONST_FLOAT"<<endl;
+			logout<<"factor : CONST_FLOAT "<<endl;
 		}
 	| variable INCOP
 			{
 			
-			$$=new TreeNode(nullptr,"factor : variable INCOP\t");
+			$$=new TreeNode(nullptr,"factor : variable INCOP");
 
 			$$->is_Terminal = false;
 
@@ -1067,12 +1067,12 @@ factor	: variable
 
 			$$->last_line=$2->last_line;
 
-			logout<<"factor : variable INCOP"<<endl;
+			logout<<"factor : variable INCOP "<<endl;
 		} 
 	| variable DECOP
 			{
 			
-			$$=new TreeNode(nullptr,"factor : variable DECOP\t");
+			$$=new TreeNode(nullptr,"factor : variable DECOP");
 
 			$$->is_Terminal = false;
 
@@ -1083,14 +1083,14 @@ factor	: variable
 
 			$$->last_line=$2->last_line;
 
-			logout<<"factor : variable DECOP"<<endl;
+			logout<<"factor : variable DECOP "<<endl;
 		}
 	;
 	
 argument_list : arguments
 		{
 			
-			$$=new TreeNode(nullptr,"argument_list : arguments\t");
+			$$=new TreeNode(nullptr,"argument_list : arguments");
 
 			$$->is_Terminal = false;
 
@@ -1100,12 +1100,12 @@ argument_list : arguments
 
 			$$->last_line=$1->last_line;
 
-			logout<<"argument_list : arguments"<<endl;
+			logout<<"argument_list : arguments "<<endl;
 		}
 			  |
 			  		{
 			
-			// $$=new TreeNode(nullptr,"argument_list :\t");
+			// $$=new TreeNode(nullptr,"argument_list :");
 
 			// $$->is_Terminal = false;
 
@@ -1115,14 +1115,14 @@ argument_list : arguments
 
 			// $$->last_line=$1->last_line;
 
-			// logout<<"argument_list : "<<endl;
+			// logout<<"argument_list :  "<<endl;
 		}
 			  ;
 	
 arguments : arguments COMMA logic_expression
 		{
 			
-			$$=new TreeNode(nullptr,"arguments : arguments COMMA logic_expression\t");
+			$$=new TreeNode(nullptr,"arguments : arguments COMMA logic_expression");
 
 			$$->is_Terminal = false;
 
@@ -1134,12 +1134,12 @@ arguments : arguments COMMA logic_expression
 
 			$$->last_line=$3->last_line;
 
-			logout<<"arguments : arguments COMMA logic_expression"<<endl;
+			logout<<"arguments : arguments COMMA logic_expression "<<endl;
 		}
 	      | logic_expression
 		  		{
 			
-			$$=new TreeNode(nullptr,"arguments : logic_expression\t");
+			$$=new TreeNode(nullptr,"arguments : logic_expression");
 
 			$$->is_Terminal = false;
 
@@ -1149,7 +1149,7 @@ arguments : arguments COMMA logic_expression
 
 			$$->last_line=$1->last_line;
 
-			logout<<"arguments : logic_expression"<<endl;
+			logout<<"arguments : logic_expression "<<endl;
 		}
 	      ;
  
@@ -1181,7 +1181,7 @@ int main(int argc,char *argv[])
 	// fclose(fp3);
 
 	if(argc != 2){
-        cout<<"Please provide input file name and try again."<<endl;
+        cout<<"Please provide input file name and try again. "<<endl;
         return 0;
     }
 

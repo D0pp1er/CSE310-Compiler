@@ -213,7 +213,7 @@ class TreeNode{
          void printchildren(int space)
          {
             if(is_Terminal)cout<<output_text<<endl;
-            else cout<<output_text<<"Line :"<<first_line<<"-"<<last_line<<endl;
+            else cout<<output_text<<" \t<Line: "<<first_line<<"-"<<last_line<<">"<<endl;
             for (int i = 0; i < childlist.size(); i++)
             {
                 for (int j = 0; j < space; j++)
