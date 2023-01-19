@@ -43,7 +43,7 @@ public:
         data_type=symbol->data_type;
         info_type=symbol->info_type;
         array_length=symbol->array_length;
-        // params=symbol->params;
+        params=symbol->params;
         // children=symbol->children;
         // start_line=symbol->start_line;
         // end_line=symbol->end_line;
@@ -58,7 +58,7 @@ public:
         this->nxtptr=nullptr;
         this->data_type=data_type;
         this->info_type=info_type;
-        // params.clear();
+        params.clear();
         // children.clear();
     }
 

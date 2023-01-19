@@ -1,92 +1,57 @@
 Line# 1: Token <INT> Lexeme int found
 type_specifier	: INT 
+Line# 1: Token <ID> Lexeme x found
+Line# 1: Token <COMMA> Lexeme , found
+declaration_list : ID 
+Line# 1: Token <ID> Lexeme y found
+Line# 1: Token <COMMA> Lexeme , found
+declaration_list : declaration_list COMMA ID 
+Line# 1: Token <ID> Lexeme z found
+Line# 1: Token <SEMICOLON> Lexeme ; found
+declaration_list : declaration_list COMMA ID 
+var_declaration : type_specifier declaration_list SEMICOLON 
+unit : var_declaration 
+program : unit 
+Line# 1: Token <FLOAT> Lexeme float found
+type_specifier	: FLOAT 
 Line# 1: Token <ID> Lexeme a found
 Line# 1: Token <SEMICOLON> Lexeme ; found
 declaration_list : ID 
 var_declaration : type_specifier declaration_list SEMICOLON 
 unit : var_declaration 
-program : unit 
-Line# 2: Token <INT> Lexeme int found
-type_specifier	: INT 
-Line# 2: Token <ID> Lexeme b found
-Line# 2: Token <COMMA> Lexeme , found
-declaration_list : ID 
-Line# 2: Token <ID> Lexeme c found
-Line# 2: Token <SEMICOLON> Lexeme ; found
-declaration_list : declaration_list COMMA ID 
-var_declaration : type_specifier declaration_list SEMICOLON 
-unit : var_declaration 
 program : program unit 
-Line# 3: Token <FLOAT> Lexeme float found
-type_specifier	: FLOAT 
-Line# 3: Token <ID> Lexeme dedffd found
+Line# 3: Token <VOID> Lexeme void found
+type_specifier	: VOID 
+Line# 3: Token <ID> Lexeme foo found
+Line# 3: Token <LPAREN> Lexeme ( found
+Line# 3: Token <RPAREN> Lexeme ) found
 Line# 3: Token <SEMICOLON> Lexeme ; found
-declaration_list : ID 
-var_declaration : type_specifier declaration_list SEMICOLON 
-unit : var_declaration 
+func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON 
+unit : func_declaration 
 program : program unit 
-Line# 4: Token <VOID> Lexeme void found
-type_specifier	: VOID 
-Line# 4: Token <ID> Lexeme def found
-Line# 4: Token <SEMICOLON> Lexeme ; found
-declaration_list : ID 
-var_declaration : type_specifier declaration_list SEMICOLON 
-unit : var_declaration 
-program : program unit 
-Line# 5: Token <VOID> Lexeme void found
-type_specifier	: VOID 
-Line# 5: Token <ID> Lexeme kutta found
+Line# 5: Token <INT> Lexeme int found
+type_specifier	: INT 
+Line# 5: Token <ID> Lexeme var found
 Line# 5: Token <LPAREN> Lexeme ( found
 Line# 5: Token <INT> Lexeme int found
 type_specifier	: INT 
-Line# 5: Token <ID> Lexeme c found
+Line# 5: Token <ID> Lexeme a found
 parameter_list : type_specifier ID 
+Line# 5: Token <COMMA> Lexeme , found
+Line# 5: Token <INT> Lexeme int found
+type_specifier	: INT 
+Line# 5: Token <ID> Lexeme b found
+parameter_list  : parameter_list COMMA type_specifier ID 
 Line# 5: Token <RPAREN> Lexeme ) found
-Line# 5: Token <SEMICOLON> Lexeme ; found
-func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON 
-unit : func_declaration 
-program : program unit 
-Line# 6: Token <SINGLE LINE COMMENT> Lexeme // int kutta(int a, int b); found
-Line# 7: Token <FLOAT> Lexeme float found
-type_specifier	: FLOAT 
-Line# 7: Token <ID> Lexeme shala found
-Line# 7: Token <LPAREN> Lexeme ( found
-Line# 7: Token <FLOAT> Lexeme float found
-type_specifier	: FLOAT 
-Line# 7: Token <RPAREN> Lexeme ) found
-parameter_list : type_specifier 
-Line# 7: Token <SEMICOLON> Lexeme ; found
-func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON 
-unit : func_declaration 
-program : program unit 
-Line# 8: Token <FLOAT> Lexeme float found
-type_specifier	: FLOAT 
-Line# 8: Token <ID> Lexeme shala found
-Line# 8: Token <LPAREN> Lexeme ( found
-Line# 8: Token <INT> Lexeme int found
-type_specifier	: INT 
-Line# 8: Token <ID> Lexeme c found
-parameter_list : type_specifier ID 
-Line# 8: Token <RPAREN> Lexeme ) found
-Line# 8: Token <LCURL> Lexeme { found
-Line# 8: Token <RCURL> Lexeme } found
-compound_statement : LCURL RCURL 
-func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
-unit : func_definition 
-program : program unit 
-Line# 9: Token <INT> Lexeme int found
-type_specifier	: INT 
-Line# 9: Token <ID> Lexeme kutta found
-Line# 9: Token <LPAREN> Lexeme ( found
-Line# 9: Token <INT> Lexeme int found
-type_specifier	: INT 
-Line# 9: Token <ID> Lexeme c found
-parameter_list : type_specifier ID 
-Line# 9: Token <RPAREN> Lexeme ) found
-Line# 9: Token <LCURL> Lexeme { found
-Line# 9: Token <RCURL> Lexeme } found
-compound_statement : LCURL RCURL 
-func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
-unit : func_definition 
-program : program unit 
-start : program 
+Line# 5: Token <LCURL> Lexeme { found
+Line# 6: Token <RETURN> Lexeme return found
+Line# 6: Token <ID> Lexeme a found
+Line# 6: Token <ADDOP> Lexeme + found
+variable : ID 
+factor	: variable 
+unary_expression : factor 
+term :	unary_expression 
+simple_expression : term 
+Line# 6: Token <ID> Lexeme b found
+Line# 6: Token <SEMICOLON> Lexeme ; found
+variable : ID 

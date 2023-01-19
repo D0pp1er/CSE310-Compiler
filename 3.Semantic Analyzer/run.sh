@@ -14,4 +14,4 @@ echo 'All ready, running'
 valgrind valgrind --leak-check=full \
          --show-leak-kinds=all \
          --track-origins=yes \
-         --log-file=valgrind-out.txt ./a test.c
+         --log-file=valgrind-out.txt ./a noerror.c

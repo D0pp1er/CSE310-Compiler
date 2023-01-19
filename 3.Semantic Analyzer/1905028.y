@@ -45,7 +45,7 @@ void DEFINE_FUNCTION(string func_name,string ret_type,int line,vector<Symbol_Inf
 		{
 			if(syminfo->get_return_type()!=ret_type)
 			{
-				errorout<<"Line# "<<line<<": Return type mismatch with function declaration for \'"<<syminfo->getName()<<"\'\n";
+				errorout<<"Line# "<<line<<": Conflicting types for \'"<<syminfo->getName()<<"\'\n";
 				error_count++;
 				return;
 			}
@@ -56,6 +56,7 @@ void DEFINE_FUNCTION(string func_name,string ret_type,int line,vector<Symbol_Inf
 				errorout<<"Line# "<<line<<": Conflicting types for \'"<<syminfo->getName()<<"\'\n";
 				error_count++;
 				return;
+				
 			}
 			if(params.size()!=0)
 			{
@@ -63,7 +64,7 @@ void DEFINE_FUNCTION(string func_name,string ret_type,int line,vector<Symbol_Inf
 				{
 					if(real_param[i]->getType()!=params[i]->get_data_type())
 					{
-						errorout<<"Line# "<<line<<": Conflicting types for \'"<<syminfo->getName()<<"\'\n";
+						errorout<<"Line# "<<line<<": Type mismatch for argument "<<i+1<<" of \'"<<syminfo->getName()<<"\'\n";
 						error_count++;
 						return;
 					}
@@ -93,6 +94,105 @@ void DEFINE_FUNCTION(string func_name,string ret_type,int line,vector<Symbol_Inf
 
 }
 
+string StringFromSymbol(vector<Symbol_Info*> temp)
+{
+	string code_text="";
+	for(Symbol_Info* syminfo:temp)
+	{
+		code_text+=syminfo->get_data_type()+" "+syminfo->getName()+",";
+	}
+	int n=code_text.length();
+	if(!n)
+	{
+		code_text=code_text.substr(0,n-1);
+	}
+	return code_text;
+}
+
+
+void FUNCTION_CALL(Symbol_Info* &functionSymbol,vector<Symbol_Info*> arguments,int line)
+{
+	string func_name=functionSymbol->getName();
+	Symbol_Info* syminfo=symbol_table.Lookup(func_name);
+	if(syminfo==nullptr)
+	{
+		errorout<<"Line# "<<line<<": Undeclared function \'"<<func_name<<"\'\n";
+		error_count++;
+		return;
+	}
+
+	if(!syminfo->is_Func())
+	{
+		errorout<<"Line# "<<line<<": \'"<<func_name<<"\' is not a function\n";
+		error_count++;
+		return;
+	}
+
+	functionSymbol->set_return_type(syminfo->get_return_type());
+	if(syminfo->get_info_type()!="FUNCTION_DEFINITION")
+	{
+		errorout<<"Line# "<<line<<": Undeclared function \'"<<func_name<<"\'\n";
+		error_count++;
+		return;
+	}
+
+	vector<Symbol_Info*> real_params=syminfo->get_Params();
+	int param_count=arguments.size();
+	if(real_params.size()>param_count)
+	{
+		errorout<<"Line# "<<line<<": Too few arguments to function \'"<<func_name<<"\'\n";
+		error_count++;
+		return;
+	}
+	else{
+		errorout<<"Line# "<<line<<": Too many arguments to function \'"<<func_name<<"\'\n";
+		error_count++;
+		return;
+	}
+	if(arguments.size()){
+	for(int i=0;i<real_params.size();i++)
+	{
+		if(real_params[i]->getType()!=arguments[i]->get_data_type())
+		{
+			errorout<<"Line# "<<line<<": Type mismatch for argument "<<to_string(i+1)<<" of \'"<<func_name<<"\'\n";
+			error_count++;
+			// return;
+		}
+	}
+	}
+
+
+}
+
+void VOID_FUNC_CHECK(Symbol_Info* i,Symbol_Info* j,int line)
+{
+	if(i->get_data_type()=="void"||j->get_data_type()=="void")
+	{
+		errorout<<"Line# "<<line<<": Void cannot be used in expression\n";
+
+		error_count++;
+	}
+}
+
+string Type_Cast_Auto(Symbol_Info* i,Symbol_Info* j)
+{
+	if(i->get_data_type()==j->get_data_type())return j->get_data_type();
+
+	if(i->get_data_type()=="float"&&j->get_data_type()=="int")
+	{
+		j->set_data_type("float");
+		return "float";
+	}
+	else if(i->get_data_type()=="int"&&j->get_data_type()=="float")
+	{
+		i->set_data_type("float");
+		return "float";
+	}
+
+	if(i->get_data_type()!="void")return i->get_data_type();
+	return j->get_data_type();
+
+}
 
 %}
 
@@ -514,7 +614,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
 				bool inserted = symbol_table.Insert(syminfo->getName(),syminfo->getType());
 				if(!inserted)
 				{
-					errorout<<"Line# "<<$2->first_line<<": \'"<<syminfo->getName()<<"\' redeclared as different kind of symbol\n";
+					errorout<<"Line# "<<$2->first_line<<": Conflicting types for\'"<<syminfo->getName()<<"\'\n";
 					error_count++;
 
 				}else{
@@ -924,6 +1024,26 @@ variable : ID
 			$$->last_line=$1->last_line;
 
 			cout<<"variable : ID "<<endl;
+			//change
+
+			Symbol_Info *syminfo=symbol_table.Lookup($1->symbol->getName());
+			if(syminfo==nullptr)
+			{
+				errorout<<"Line# "<<$$->first_line<<": Undeclared variable \'"<<syminfo->getName()<<"\'\n";
+				error_count++;
+				$$->symbol=$1->symbol;
+			}
+			else
+			{
+				if(syminfo->is_array())
+				{
+					errorout<<"Line# "<<$$->first_line<<": Type mismatch for array \'"<<syminfo->getName()<<"\'\n";
+					error_count++;
+				}
+				$$->symbol=new Symbol_Info(*($1->symbol));
+			}
+
+
 		} 		
 	 | ID LTHIRD expression RTHIRD
 	 		{
@@ -942,6 +1062,32 @@ variable : ID
 			$$->last_line=$4->last_line;
 
 			cout<<"variable : ID LSQUARE expression RSQUARE "<<endl;
+
+			//change
+			Symbol_Info* syminfo=symbol_table.Lookup($1->symbol->getName());
+			if(syminfo!=nullptr)
+			{
+				$1->symbol->set_data_type(syminfo->get_data_type());
+				if(!syminfo->is_array())
+				{
+					errorout<<"Line# "<<$$->first_line<<": \'"<<syminfo->getName()<<"\'is not an array\n";
+					error_count++;
+				}
+				if($3->symbol->get_data_type()!="int")
+				{
+					errorout<<"Line# "<<$$->first_line<<": Array subscript is not an integer\n";
+					error_count++;
+				}
+			} 
+			else
+			{
+				errorout<<"Line# "<<$$->first_line<<": Undeclared variable \'"<<syminfo->getName()<<"\'\n";
+				error_count++;
+			}
+
+			$1->symbol->setName($1->symbol->getName()+"["+$3->symbol->getName()+"]");
+			$$->symbol=$1->symbol;
+
 		} 
 	 ;
 	 
@@ -1079,6 +1225,8 @@ simple_expression : term
 			$$->last_line=$3->last_line;
 
 			cout<<"simple_expression : simple_expression ADDOP term "<<endl;
+			//change
+			//current
 		} 
 		  ;
 					
@@ -1096,6 +1244,8 @@ term :	unary_expression
 			$$->last_line=$1->last_line;
 
 			cout<<"term :	unary_expression "<<endl;
+			//change
+			$$->symbol=$1->symbol;
 		}
      |  term MULOP unary_expression
 	 		{
@@ -1113,6 +1263,30 @@ term :	unary_expression
 			$$->last_line=$3->last_line;
 
 			cout<<"term : term MULOP unary_expression "<<endl;
+			//change
+			string code_text=$1->symbol->getName()+$2->symbol->getName()+$3->symbol->getName();
+		
+			VOID_FUNC_CHECK($1->symbol,$2->symbol,$$->first_line);
+			if($2->symbol->getName()=="%")
+			{
+				if($3->symbol->getName()=="0")
+				{
+					errorout<<"Line# "<<$$->first_line<<": Warning: division by zero i=0f=1Const=0\n";
+					error_count++;
+				}
+
+				if($1->symbol->get_data_type()!="int"||$3->symbol->get_data_type()!="int")
+				{
+					errorout<<"Line# "<<$$->first_line<<": Operands of modulus must be integers\n";
+					error_count++;
+				}
+				$1->symbol->set_data_type("int");
+				$3->symbol->set_data_type("int");
+
+			}
+			$$->symbol=new Symbol_Info(code_text,"term",Type_Cast_Auto($1->symbol,$3->symbol));
+
+
 		}
      ;
 
@@ -1131,6 +1305,12 @@ unary_expression : ADDOP unary_expression
 			$$->last_line=$2->last_line;
 
 			cout<<"unary_expression : ADDOP unary_expression "<<endl;
+			//change
+			$$->symbol=new Symbol_Info($1->symbol->getName()+$2->symbol->getName(),"unary_ecpression",$2->symbol->get_data_type());
+
+
+
+
 		}  
 		 | NOT unary_expression
 		 		{
@@ -1148,6 +1328,11 @@ unary_expression : ADDOP unary_expression
 			$$->last_line=$2->last_line;
 
 			cout<<"unary_expression : NOT unary_expression "<<endl;
+			//change
+			$$->symbol=new Symbol_Info("!"+$2->symbol->getName(),"unary_expression",$2->symbol->get_data_type());
+
+
+
 		} 
 		 | factor
 		 		{
@@ -1163,6 +1348,9 @@ unary_expression : ADDOP unary_expression
 			$$->last_line=$1->last_line;
 
 			cout<<"unary_expression : factor "<<endl;
+			//change none cause factor is unary expression now
+			$$->symbol=$1->symbol;
+
 		} 
 		 ;
 	
@@ -1180,6 +1368,9 @@ factor	: variable
 			$$->last_line=$1->last_line;
 
 			cout<<"factor	: variable "<<endl;
+
+			//change
+			$$->symbol=$1->symbol;
 		} 
 	| ID LPAREN argument_list RPAREN
 			{
@@ -1198,6 +1389,16 @@ factor	: variable
 			$$->last_line=$4->last_line;
 
 			cout<<"factor : ID LPAREN argument_list RPAREN "<<endl;
+			//change 
+			FUNCTION_CALL($1->symbol,$3->Nodes_param_list,$$->first_line);
+			string code_text=$1->symbol->getName()+"("+StringFromSymbol($3->Nodes_param_list)+")";
+			$$->symbol=new Symbol_Info(code_text,"function",$1->symbol->get_return_type());
+
+
+
+
+
+
 		}
 	| LPAREN expression RPAREN
 			{
@@ -1215,6 +1416,11 @@ factor	: variable
 			$$->last_line=$3->last_line;
 
 			cout<<"factor : LPAREN expression RPAREN "<<endl;
+
+			//change
+			$$->symbol=new Symbol_Info("("+$2->symbol->getName()+")","factor",$2->symbol->get_data_type());
+
+
 		}
 	| CONST_INT 
 			{
@@ -1230,6 +1436,9 @@ factor	: variable
 			$$->last_line=$1->last_line;
 
 			cout<<"factor : CONST_INT "<<endl;
+			//change
+			$$->symbol=new Symbol_Info($1->symbol->getName(),"factor","int");
+
 		}
 	| CONST_FLOAT
 			{
@@ -1245,6 +1454,9 @@ factor	: variable
 			$$->last_line=$1->last_line;
 
 			cout<<"factor : CONST_FLOAT "<<endl;
+			//change
+			$$->symbol=new Symbol_Info($1->symbol->getName(),"factor","float");
+
 		}
 	| variable INCOP
 			{
@@ -1262,6 +1474,10 @@ factor	: variable
 			$$->last_line=$2->last_line;
 
 			cout<<"factor : variable INCOP "<<endl;
+			//change
+			$$->symbol=new Symbol_Info($1->symbol->getName()+"++","factor",$1->symbol->get_data_type());
+
+
 		} 
 	| variable DECOP
 			{
@@ -1278,6 +1494,9 @@ factor	: variable
 			$$->last_line=$2->last_line;
 
 			cout<<"factor : variable DECOP "<<endl;
+			//change
+			$$->symbol=new Symbol_Info($1->symbol->getName()+"--","factor",$1->symbol->get_data_type());
+
 		}
 	;
 	
@@ -1295,6 +1514,9 @@ argument_list : arguments
 			$$->last_line=$1->last_line;
 
 			cout<<"argument_list : arguments "<<endl;
+
+			//change
+			$$->Nodes_param_list=$1->Nodes_param_list;
 		}
 			  |
 			  		{
@@ -1329,6 +1551,9 @@ arguments : arguments COMMA logic_expression
 			$$->last_line=$3->last_line;
 
 			cout<<"arguments : arguments COMMA logic_expression "<<endl;
+			//change
+			$$->Nodes_param_list.push_back($3->symbol);
+
 		}
 	      | logic_expression
 		  		{
@@ -1347,7 +1572,7 @@ arguments : arguments COMMA logic_expression
 
 			//change
 
-			// $$->Nodes_param_list()
+			$$->Nodes_param_list.push_back($1->symbol);
 		}
 	      ;
  
