@@ -1,1 +1,0 @@
-Line# 21: Too few arguments to function 'var'

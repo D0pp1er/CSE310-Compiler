@@ -15,3 +15,9 @@ valgrind valgrind --leak-check=full \
          --show-leak-kinds=all \
          --track-origins=yes \
          --log-file=valgrind-out.txt ./a noerror.c
+
+
+# how to use gdb 
+# gdb ./a --->gdb executable file name
+# run noerror.c --->run input file name
+# where --->to get where segmentation fault is happening

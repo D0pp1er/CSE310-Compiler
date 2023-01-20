@@ -74,7 +74,7 @@ void DEFINE_FUNCTION(string func_name,string ret_type,int line,vector<Symbol_Inf
 			}
 		}
 		else{
-			errorout<<"Line# "<<line<<": Multiple declaration of  \'"<<syminfo->getName()<<"\'\n";
+			errorout<<"Line# "<<line<<": \'"<<syminfo->getName()<<"\' redeclared as different kind of symbol\n";
 			error_count++;
 			return;
 		}
@@ -142,11 +142,35 @@ void FUNCTION_CALL(Symbol_Info* &functionSymbol,vector<Symbol_Info*> arguments,i
 	int param_count=arguments.size();
 	if(real_params.size()>param_count)
 	{
+		// //debug
+		// for(int i=0;i<arguments.size();i++)
+		// {
+		// 	errorout<<"debug  --->  given arguments  "<<arguments[i]->get_data_type()<<"   name   "<<arguments[i]->getName()<<endl;
+		// }
+
+		// for(int i=0;i<real_params.size();i++)
+		// {
+		// 	errorout<<"debug  --->   actual arguments  "<<real_params[i]->getType()<<"   name   "<<real_params[i]->getName()<<endl;
+		// }
+
 		errorout<<"Line# "<<line<<": Too few arguments to function \'"<<func_name<<"\'\n";
 		error_count++;
 		return;
 	}
-	else{
+	else if(real_params.size()<param_count){
+
+		// //debug
+		// for(int i=0;i<arguments.size();i++)
+		// {
+		// 	errorout<<"debug  --->  given arguments  "<<arguments[i]->get_data_type()<<"   name   "<<arguments[i]->getName()<<endl;
+		// }
+
+		// for(int i=0;i<real_params.size();i++)
+		// {
+		// 	errorout<<"debug  --->   actual arguments  "<<real_params[i]->getType()<<"   name   "<<real_params[i]->getName()<<endl;
+		// }
+
+
 		errorout<<"Line# "<<line<<": Too many arguments to function \'"<<func_name<<"\'\n";
 		error_count++;
 		return;
@@ -170,7 +194,7 @@ void VOID_FUNC_CHECK(Symbol_Info* i,Symbol_Info* j,int line)
 {
 	if(i->get_data_type()=="void"||j->get_data_type()=="void")
 	{
-		errorout<<"Line# "<<line<<": Void cannot be used in expression\n";
+		errorout<<"Line# "<<line<<": Void cannot be used in expression \n";
 
 		error_count++;
 	}
@@ -209,7 +233,7 @@ void DECLARE_FUNCTION_PARAMETER(string name,string data_type,int line=yylineno)
 		syminfo->set_data_type(data_type);
 		return;
 	}
-		errorout<<"Line# "<<line<<": Redifinition of parameter \'"<<name<<"\'\n";
+		errorout<<"Line# "<<line<<": Redefinition of parameter \'"<<name<<"\'\n";
 		error_count++;
 
 }
@@ -1106,8 +1130,8 @@ variable : ID
 			{
 				if(syminfo->is_array())
 				{
-					errorout<<"Line# "<<$$->first_line<<": Type mismatch for array \'"<<syminfo->getName()<<"\'\n";
-					error_count++;
+					// errorout<<"Line# "<<$$->first_line<<": Type mismatch for array \'"<<syminfo->getName()<<"\'\n";
+					// error_count++;
 				}
 				$$->symbol=new Symbol_Info(*syminfo);
 			}
@@ -1139,7 +1163,7 @@ variable : ID
 				$1->symbol->set_data_type(syminfo->get_data_type());
 				if(!syminfo->is_array())
 				{
-					errorout<<"Line# "<<$$->first_line<<": \'"<<syminfo->getName()<<"\'is not an array\n";
+					errorout<<"Line# "<<$$->first_line<<": \'"<<syminfo->getName()<<"\' is not an array\n";
 					error_count++;
 				}
 				if($3->symbol->get_data_type()!="int")
@@ -1198,18 +1222,49 @@ variable : ID
 			
 
 			string code_text=$1->symbol->getName()+"="+$3->symbol->getName();
-			Symbol_Info* syminfo=symbol_table.Lookup($1->symbol->getName());
-			if(syminfo!=nullptr)
+			// Symbol_Info* syminfo=symbol_table.Lookup($1->symbol->getName());
+
+			//debug
+			// if(syminfo==nullptr)
+			// {
+			// 	errorout<<"------------->line no : "<<$$->first_line<<"   this should not be null\n";
+			// 	errorout<<$1->symbol->getName()<<endl;
+			// 	errorout<<$1->symbol->get_data_type()<<endl;
+			// 	errorout<<$1->symbol->getType()<<endl;
+
+			// }
+			// else
+			// {
+			// 	errorout<<"-------------> line no : "<<$$->first_line<<"     "<<$3->symbol->getName() <<" logics data type "<<$3->symbol->get_data_type()<<"   and    type"<<$3->symbol->getType()<<endl;
+			// }
+
+
+
+
+
+			
+
+
+			// if(syminfo!=nullptr)
+			// {
+			// 	if((syminfo->get_data_type()=="int"&& $3->symbol->get_data_type()=="float")||(syminfo->get_data_type()=="int"&& $3->symbol->getType()=="float"))
+			// 	{
+			// 		errorout<<"Line# "<<$$->first_line<<": Warning: possible loss of data in assignment of FLOAT to INT\n";
+			// 		error_count++;
+			// 	}
+			// }
+
+			
+			
+			if($1->symbol->get_data_type()=="int"&& $3->symbol->get_data_type()=="float")
 			{
-				if(syminfo->get_data_type()=="int"&& $3->symbol->get_data_type()=="float")
-				{
-					errorout<<"Line# "<<$$->first_line<<": Warning: possible loss of data in assignment of FLOAT to INT\n";
-					error_count++;
-				}
+				errorout<<"Line# "<<$$->first_line<<": Warning: possible loss of data in assignment of FLOAT to INT\n";
+				error_count++;
 			}
+			
 			if($3->symbol->get_data_type()=="void")
 			{
-				errorout<<"Line# "<<$$->first_line<<": Void cannot be used in expression\n";
+				errorout<<"Line# "<<$$->first_line<<": Void cannot be used in expression \n";
 				error_count++;
 			}
 			$$->symbol=new Symbol_Info(code_text,"expression",$1->symbol->getType());
@@ -1383,7 +1438,7 @@ term :	unary_expression
 			//change
 			string code_text=$1->symbol->getName()+$2->symbol->getName()+$3->symbol->getName();
 		
-			VOID_FUNC_CHECK($1->symbol,$2->symbol,$$->first_line);
+			VOID_FUNC_CHECK($1->symbol,$3->symbol,$$->first_line);
 			if($2->symbol->getName()=="%")
 			{
 				if($3->symbol->getName()=="0")
@@ -1394,7 +1449,7 @@ term :	unary_expression
 
 				if($1->symbol->get_data_type()!="int"||$3->symbol->get_data_type()!="int")
 				{
-					errorout<<"Line# "<<$$->first_line<<": Operands of modulus must be integers\n";
+					errorout<<"Line# "<<$$->first_line<<": Operands of modulus must be integers \n";
 					error_count++;
 				}
 				$1->symbol->set_data_type("int");
@@ -1669,6 +1724,7 @@ arguments : arguments COMMA logic_expression
 
 			cout<<"arguments : arguments COMMA logic_expression "<<endl;
 			//change
+			$$->Nodes_param_list=$1->Nodes_param_list;
 			$$->Nodes_param_list.push_back($3->symbol);
 
 		}
@@ -1688,7 +1744,7 @@ arguments : arguments COMMA logic_expression
 			cout<<"arguments : logic_expression "<<endl;
 
 			//change
-
+			$$->Nodes_param_list=$1->Nodes_param_list;
 			$$->Nodes_param_list.push_back($1->symbol);
 		}
 	      ;
