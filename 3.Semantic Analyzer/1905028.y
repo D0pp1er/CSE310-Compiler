@@ -18,6 +18,8 @@ int error_count;
 // ofstream cout("1905028_log_smaple.txt");
 ofstream errorout("1905028_error.txt");
 ofstream parseTree("1905028_ParseTree.txt");
+vector<Symbol_Info*> function_parameter_list;
+int  parameter_list_line_no;
 
 
 Symbol_Table symbol_table(11);
@@ -192,6 +194,36 @@ string Type_Cast_Auto(Symbol_Info* i,Symbol_Info* j)
 	if(i->get_data_type()!="void")return i->get_data_type();
 	return j->get_data_type();
 
+}
+
+void DECLARE_FUNCTION_PARAMETER(string name,string data_type,int line=yylineno)
+{
+	if(data_type=="void")
+	{
+		errorout<<"Line# "<<line<<": Function parameter can't be void \n";
+		error_count++;
+	}
+	if(symbol_table.Insert(name,"ID"))
+	{
+		Symbol_Info* syminfo=symbol_table.Lookup(name);
+		syminfo->set_data_type(data_type);
+		return;
+	}
+		errorout<<"Line# "<<line<<": Redifinition of parameter \'"<<name<<"\'\n";
+		error_count++;
+
+}
+
+
+
+void DECLARE_FUNCTION_PARAMETER_LIST(vector<Symbol_Info*> &params,int line=yylineno)
+{
+	if(params.size()==0)return;
+	for(Symbol_Info* syminfo:params)
+	{
+		DECLARE_FUNCTION_PARAMETER(syminfo->getName(),syminfo->getType(),line);
+	}
+	params.clear();
 }
 
 %}
@@ -478,6 +510,9 @@ parameter_list  : parameter_list COMMA type_specifier ID
 			//change
 			$1->Nodes_param_list.push_back(new Symbol_Info($4->symbol->getName(),"",$3->symbol->getName()));
 			$$->Nodes_param_list=$1->Nodes_param_list;
+			function_parameter_list=$$->Nodes_param_list;
+			parameter_list_line_no=$$->first_line;
+
 
 
 		}
@@ -501,6 +536,8 @@ parameter_list  : parameter_list COMMA type_specifier ID
 			//change
 			$1->Nodes_param_list.push_back(new Symbol_Info($3->symbol->getName(),""));
 			$$->Nodes_param_list=$1->Nodes_param_list;
+			function_parameter_list=$$->Nodes_param_list;
+			parameter_list_line_no=$$->first_line;
 
 
 		}
@@ -522,7 +559,8 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 			//change
 			$$->Nodes_param_list.push_back(new Symbol_Info($2->symbol->getName(),"",$1->symbol->getName()));
-
+			function_parameter_list=$$->Nodes_param_list;
+			parameter_list_line_no=$$->first_line;
 
 
 
@@ -549,7 +587,7 @@ parameter_list  : parameter_list COMMA type_specifier ID
  		;
 
  		
-compound_statement : LCURL statements RCURL
+compound_statement : LCURL{symbol_table.Enter_Scope();DECLARE_FUNCTION_PARAMETER_LIST(function_parameter_list,parameter_list_line_no);} statements RCURL
 		{
 			
 			$$=new TreeNode(nullptr,"compound_statement : LCURL statements RCURL");
@@ -557,16 +595,19 @@ compound_statement : LCURL statements RCURL
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
-			$$->childlist.push_back($2);
 			$$->childlist.push_back($3);
+			$$->childlist.push_back($4);
 
 			$$->first_line=$1->first_line;
 
-			$$->last_line=$3->last_line;
+			$$->last_line=$4->last_line;
 
 			cout<<"compound_statement : LCURL statements RCURL "<<endl;
+			//change
+			symbol_table.PrintAllScope();
+			symbol_table.Exit_Scope();
 		}
- 		    | LCURL RCURL
+ 		    | LCURL{symbol_table.Enter_Scope();} RCURL
 		{
 			
 			$$=new TreeNode(nullptr,"compound_statement : LCURL RCURL");
@@ -574,13 +615,16 @@ compound_statement : LCURL statements RCURL
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
-			$$->childlist.push_back($2);
+			$$->childlist.push_back($3);
 
 			$$->first_line=$1->first_line;
 
-			$$->last_line=$2->last_line;
+			$$->last_line=$3->last_line;
 
 			cout<<"compound_statement : LCURL RCURL "<<endl;
+			//change
+			symbol_table.PrintAllScope();
+			symbol_table.Exit_Scope();
 		}
  		    ;
  		    
@@ -631,7 +675,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
  		 
 type_specifier	: INT
 		{
-						//change
+			//change
 			Symbol_Info* symbol=new Symbol_Info("int","INT");
 			$$=new TreeNode(symbol,"type_specifier : INT");
 
@@ -769,7 +813,7 @@ declaration_list : declaration_list COMMA ID
 			cout<<"declaration_list : ID LSQUARE CONST_INT RSQUARE "<<endl;
 
 			//creating list for the first symbol
-
+			//change
 			// $$->Nodes_param_list=new vector<Symbol_Info*>();
 			$1->symbol->set_array_length($3->symbol->getName()); 
 			$$->Nodes_param_list.push_back($1->symbol);
@@ -793,6 +837,7 @@ statements : statement
 			$$->last_line=$1->last_line;
 
 			cout<<"statements : statement "<<endl;
+			//change
 		}
 
 
@@ -811,6 +856,7 @@ statements : statement
 			$$->last_line=$2->last_line;
 
 			cout<<"statements : statements statement "<<endl;
+			//change
 		}
 	   ;
 	   
@@ -828,6 +874,7 @@ statement : var_declaration
 			$$->last_line=$1->last_line;
 
 			cout<<"statement : var_declaration "<<endl;
+			//change
 		}
 	  | expression_statement
 	  		{
@@ -843,6 +890,7 @@ statement : var_declaration
 			$$->last_line=$1->last_line;
 
 			cout<<"statement : expression_statement "<<endl;
+			//change
 		}
 	  | compound_statement
 	  		{
@@ -858,6 +906,7 @@ statement : var_declaration
 			$$->last_line=$1->last_line;
 
 			cout<<"statement : compound_statement "<<endl;
+			//change
 		}
 	  | FOR LPAREN expression_statement expression_statement expression RPAREN statement
 	  		{
@@ -879,6 +928,7 @@ statement : var_declaration
 			$$->last_line=$7->last_line;
 
 			cout<<"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement "<<endl;
+			//change
 		}
 	  | IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
 	  		{
@@ -898,6 +948,7 @@ statement : var_declaration
 			$$->last_line=$5->last_line;
 
 			cout<<"statement : IF LPAREN expression RPAREN statement "<<endl;
+			//change
 		}
 	  | IF LPAREN expression RPAREN statement ELSE statement
 	  		{
@@ -919,6 +970,7 @@ statement : var_declaration
 			$$->last_line=$7->last_line;
 
 			cout<<"statement : IF LPAREN expression RPAREN statement ELSE statement "<<endl;
+			//change
 		}
 	  | WHILE LPAREN expression RPAREN statement
 	  		{
@@ -938,6 +990,8 @@ statement : var_declaration
 			$$->last_line=$5->last_line;
 
 			cout<<"statement : WHILE LPAREN expression RPAREN statement "<<endl;
+			//change
+
 		}
 	  | PRINTLN LPAREN ID RPAREN SEMICOLON
 	  		{
@@ -957,6 +1011,16 @@ statement : var_declaration
 			$$->last_line=$5->last_line;
 
 			cout<<"statement : PRINTLN LPAREN ID RPAREN SEMICOLON "<<endl;
+			//change
+
+			if(!symbol_table.Lookup($3->symbol->getName()))
+			{
+				errorout<<"Line# "<<$$->first_line<<": Undeclared variable \'"<<$3->symbol->getName()<<"\'\n";
+				error_count++;
+			}
+
+
+
 		}
 	  | RETURN expression SEMICOLON
 	  		{
@@ -974,6 +1038,7 @@ statement : var_declaration
 			$$->last_line=$3->last_line;
 
 			cout<<"statement : RETURN expression SEMICOLON "<<endl;
+			//change
 		}
 	  ;
 	  
@@ -991,6 +1056,7 @@ expression_statement : SEMICOLON
 			$$->last_line=$1->last_line;
 
 			cout<<"expression_statement : SEMICOLON "<<endl;
+			//change
 		}		
 			| expression SEMICOLON 
 		{
@@ -1007,6 +1073,9 @@ expression_statement : SEMICOLON
 			$$->last_line=$2->last_line;
 
 			cout<<"expression_statement : expression SEMICOLON "<<endl;
+
+			//change
+
 		}
 			;
 	  
@@ -1040,7 +1109,7 @@ variable : ID
 					errorout<<"Line# "<<$$->first_line<<": Type mismatch for array \'"<<syminfo->getName()<<"\'\n";
 					error_count++;
 				}
-				$$->symbol=new Symbol_Info(*($1->symbol));
+				$$->symbol=new Symbol_Info(*syminfo);
 			}
 
 
@@ -1105,6 +1174,8 @@ variable : ID
 			$$->last_line=$1->last_line;
 
 			cout<<"expression : logic_expression "<<endl;
+			//change
+			$$->symbol=$1->symbol;
 		}	
 	   | variable ASSIGNOP logic_expression
 	   		{
@@ -1123,6 +1194,27 @@ variable : ID
 			$$->last_line=$3->last_line;
 
 			cout<<"expression : variable ASSIGNOP logic_expression "<<endl;
+			//change
+			
+
+			string code_text=$1->symbol->getName()+"="+$3->symbol->getName();
+			Symbol_Info* syminfo=symbol_table.Lookup($1->symbol->getName());
+			if(syminfo!=nullptr)
+			{
+				if(syminfo->get_data_type()=="int"&& $3->symbol->get_data_type()=="float")
+				{
+					errorout<<"Line# "<<$$->first_line<<": Warning: possible loss of data in assignment of FLOAT to INT\n";
+					error_count++;
+				}
+			}
+			if($3->symbol->get_data_type()=="void")
+			{
+				errorout<<"Line# "<<$$->first_line<<": Void cannot be used in expression\n";
+				error_count++;
+			}
+			$$->symbol=new Symbol_Info(code_text,"expression",$1->symbol->getType());
+
+
 		} 	
 	   ;
 			
@@ -1140,6 +1232,8 @@ logic_expression : rel_expression
 			$$->last_line=$1->last_line;
 
 			cout<<"logic_expression : rel_expression "<<endl;
+			//change
+			$$->symbol=$1->symbol;
 		} 	
 		 | rel_expression LOGICOP rel_expression
 		 		{
@@ -1157,6 +1251,13 @@ logic_expression : rel_expression
 			$$->last_line=$3->last_line;
 
 			cout<<"logic_expression : rel_expression LOGICOP rel_expression "<<endl;
+			//change
+			string code_text=$1->symbol->getName()+$2->symbol->getName()+$3->symbol->getName();
+			$$->symbol=new Symbol_Info(code_text,"logic_expression","int");
+
+
+
+
 		} 	
 		 ;
 			
@@ -1174,6 +1275,8 @@ rel_expression	: simple_expression
 			$$->last_line=$1->last_line;
 
 			cout<<"rel_expression	: simple_expression "<<endl;
+			//change
+			$$->symbol=$1->symbol;
 		} 
 		| simple_expression RELOP simple_expression
 				{
@@ -1191,6 +1294,12 @@ rel_expression	: simple_expression
 			$$->last_line=$3->last_line;
 
 			cout<<"rel_expression	: simple_expression RELOP simple_expression "<<endl;
+			//change
+			string code_text=$1->symbol->getName()+$2->symbol->getName()+$3->symbol->getName();
+			Type_Cast_Auto($1->symbol,$3->symbol);
+			$$->symbol=new Symbol_Info(code_text,"rel_expression","int");
+
+
 		}	
 		;
 				
@@ -1208,6 +1317,10 @@ simple_expression : term
 			$$->last_line=$1->last_line;
 
 			cout<<"simple_expression : term "<<endl;
+
+			//change
+			$$->symbol=$1->symbol;
+
 		}
 		  | simple_expression ADDOP term
 		  		{
@@ -1226,7 +1339,11 @@ simple_expression : term
 
 			cout<<"simple_expression : simple_expression ADDOP term "<<endl;
 			//change
-			//current
+			
+			string code_text=$1->symbol->getName()+$2->symbol->getName()+$3->symbol->getName();
+			VOID_FUNC_CHECK($1->symbol,$3->symbol,$$->first_line);
+			$$->symbol=new Symbol_Info(code_text,"simple_expression",Type_Cast_Auto($1->symbol,$3->symbol));
+
 		} 
 		  ;
 					
