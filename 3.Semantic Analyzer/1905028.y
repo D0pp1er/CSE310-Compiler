@@ -1098,7 +1098,7 @@ variable : ID
 			Symbol_Info *syminfo=symbol_table.Lookup($1->symbol->getName());
 			if(syminfo==nullptr)
 			{
-				errorout<<"Line# "<<$$->first_line<<": Undeclared variable \'"<<syminfo->getName()<<"\'\n";
+				errorout<<"Line# "<<$$->first_line<<": Undeclared variable \'"<<$1->symbol->getName()<<"\'\n";
 				error_count++;
 				$$->symbol=$1->symbol;
 			}

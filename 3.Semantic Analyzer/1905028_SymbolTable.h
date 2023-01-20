@@ -46,10 +46,10 @@ public:
             // cout<<"\tScopeTable# "<<curr->getID()<<" cannot be removed\n";
             return;
         }
-        Scope_Table *temp=curr;
+        // Scope_Table *temp=curr;
         curr=curr->getParent();
         // cout<<"\tScopeTable# "<<temp->getID()<<" removed\n";
-        delete temp;
+        // delete temp;
     }
 
     void ExitAllScope()
@@ -57,10 +57,10 @@ public:
 
         while(curr!=nullptr)
         {
-            Scope_Table *temp=curr;
+            // Scope_Table *temp=curr;
             curr=curr->getParent();
             // cout<<"\tScopeTable# "<<temp->getID()<<" removed\n";
-            delete temp;
+            // delete temp;
         }
     }
 

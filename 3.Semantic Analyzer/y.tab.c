@@ -2558,7 +2558,7 @@ yyreduce:
 			Symbol_Info *syminfo=symbol_table.Lookup((yyvsp[0].treeNode)->symbol->getName());
 			if(syminfo==nullptr)
 			{
-				errorout<<"Line# "<<(yyval.treeNode)->first_line<<": Undeclared variable \'"<<syminfo->getName()<<"\'\n";
+				errorout<<"Line# "<<(yyval.treeNode)->first_line<<": Undeclared variable \'"<<(yyvsp[0].treeNode)->symbol->getName()<<"\'\n";
 				error_count++;
 				(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 			}
