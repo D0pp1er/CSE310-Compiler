@@ -78,15 +78,15 @@ statements : statement
 Line# 8: Token <RCURL> Lexeme } found
 compound_statement : LCURL statements RCURL 
 	ScopeTable# 2
-	10--> <a,ID> 
-	11--> <b,ID> 
+	10--> <a,ID,,,VARIABLE,0> 
+	11--> <b,ID,,,VARIABLE,0> 
 	ScopeTable# 1
-	1--> <y,ID> 
-	2--> <z,ID> 
-	6--> <foo,FUNCTION> <var,FUNCTION> 
-	9--> <aa,ID> 
-	10--> <a,ID> 
-	11--> <x,ID> 
+	1--> <y,ID,int,,VARIABLE,0> 
+	2--> <z,ID,int,,VARIABLE,0> 
+	6--> <foo,FUNCTION,void,,FUNCTION_DECLARATION,0> <var,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	9--> <aa,ID,int,2,VARIABLE,0> 
+	10--> <a,ID,float,,VARIABLE,0> 
+	11--> <x,ID,int,,VARIABLE,0> 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
 unit : func_definition 
 program : program unit 
@@ -137,12 +137,12 @@ Line# 13: Token <RCURL> Lexeme } found
 compound_statement : LCURL statements RCURL 
 	ScopeTable# 3
 	ScopeTable# 1
-	1--> <y,ID> 
-	2--> <z,ID> 
-	6--> <foo,FUNCTION> <var,FUNCTION> 
-	9--> <aa,ID> 
-	10--> <a,ID> 
-	11--> <x,ID> 
+	1--> <y,ID,int,,VARIABLE,0> 
+	2--> <z,ID,int,,VARIABLE,0> 
+	6--> <foo,FUNCTION,void,,FUNCTION_DEFINITION,0> <var,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	9--> <aa,ID,int,2,VARIABLE,0> 
+	10--> <a,ID,float,,VARIABLE,0> 
+	11--> <x,ID,int,,VARIABLE,0> 
 func_definition : type_specifier ID LPAREN RPAREN compound_statement 
 unit : func_definition 
 program : program unit 
@@ -405,20 +405,49 @@ statements : statements statement
 Line# 24: Token <RCURL> Lexeme } found
 compound_statement : LCURL statements RCURL 
 	ScopeTable# 4
-	1--> <c,ID> 
-	2--> <d,ID> 
-	7--> <i,ID> 
-	8--> <j,ID> 
-	9--> <k,ID> 
-	10--> <a,ID> 
+	1--> <c,ID,int,,VARIABLE,0> 
+	2--> <d,ID,float,,VARIABLE,0> 
+	7--> <i,ID,int,,VARIABLE,0> 
+	8--> <j,ID,int,,VARIABLE,0> 
+	9--> <k,ID,int,,VARIABLE,0> 
+	10--> <a,ID,int,2,VARIABLE,0> 
 	ScopeTable# 1
-	1--> <y,ID> 
-	2--> <z,ID> <main,FUNCTION> 
-	6--> <foo,FUNCTION> <var,FUNCTION> 
-	9--> <aa,ID> 
-	10--> <a,ID> 
-	11--> <x,ID> 
+	1--> <y,ID,int,,VARIABLE,0> 
+	2--> <z,ID,int,,VARIABLE,0> <main,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	6--> <foo,FUNCTION,void,,FUNCTION_DEFINITION,0> <var,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	9--> <aa,ID,int,2,VARIABLE,0> 
+	10--> <a,ID,float,,VARIABLE,0> 
+	11--> <x,ID,int,,VARIABLE,0> 
 func_definition : type_specifier ID LPAREN RPAREN compound_statement 
 unit : func_definition 
 program : program unit 
 start : program 
+----------Asm Scopes
+	ScopeTable# 5
+	ScopeTable# 1
+	1--> <y,ID,int,,VARIABLE,0> 
+	2--> <z,ID,int,,VARIABLE,0> <main,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	6--> <foo,FUNCTION,void,,FUNCTION_DEFINITION,0> <var,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	9--> <aa,ID,int,2,VARIABLE,0> 
+	10--> <a,ID,float,,VARIABLE,0> 
+	11--> <x,ID,int,,VARIABLE,0> 
+----------Asm Scopes
+	ScopeTable# 6
+	ScopeTable# 1
+	1--> <y,ID,int,,VARIABLE,0> 
+	2--> <z,ID,int,,VARIABLE,0> <main,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	6--> <foo,FUNCTION,void,,FUNCTION_DEFINITION,0> <var,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	9--> <aa,ID,int,2,VARIABLE,0> 
+	10--> <a,ID,float,,VARIABLE,0> 
+	11--> <x,ID,int,,VARIABLE,0> 
+----------Asm Scopes
+	ScopeTable# 7
+	10--> <a,,int,,VARIABLE,-2> 
+	11--> <b,,int,,VARIABLE,-2> 
+	ScopeTable# 1
+	1--> <y,ID,int,,VARIABLE,0> 
+	2--> <z,ID,int,,VARIABLE,0> <main,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	6--> <foo,FUNCTION,void,,FUNCTION_DEFINITION,0> <var,FUNCTION,int,,FUNCTION_DEFINITION,0> 
+	9--> <aa,ID,int,2,VARIABLE,0> 
+	10--> <a,ID,float,,VARIABLE,0> 
+	11--> <x,ID,int,,VARIABLE,0> 

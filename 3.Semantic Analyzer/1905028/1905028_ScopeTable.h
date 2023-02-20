@@ -142,6 +142,45 @@ public:
 
     }
 
+
+    bool InsertSymbol(Symbol_Info symbol)
+    {
+        string name=symbol.getName();
+        if(LookUpSymbol(name,false)!=nullptr)
+        {
+            cout<<"\t"<<name<<" already exists in the current ScopeTable"<<endl;
+            return false;
+        }
+
+        else
+        {
+            int i = SDBM_Hash(name);
+            if(hash_table[i]==nullptr)
+            {
+                hash_table[i]=new Symbol_Info(symbol);
+                // cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", 1"<<endl;
+                return true;
+            }
+
+            Symbol_Info *temp1=hash_table[i];
+            Symbol_Info *temp2=nullptr;
+
+            int pos=1;
+
+            while (temp1!=nullptr)
+            {
+                pos++;
+                temp2=temp1;
+                temp1=temp1->get_nxtptr();
+            }
+
+            temp2->set_nxtptr(new Symbol_Info(symbol));
+            // cout<<"\tInserted in ScopeTable# "<<Scope_ID<<" at position "<<i+1<<", "<<pos<<endl;
+            return true;
+        }
+
+    }
+
     bool delete_Symbol(string name)
     {
         if(LookUpSymbol(name,false)==nullptr)

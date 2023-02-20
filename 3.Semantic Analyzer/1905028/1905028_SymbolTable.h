@@ -69,6 +69,12 @@ public:
         return curr->InsertSymbol(name,type); 
     }
 
+    bool Insert(Symbol_Info symbol)
+    {
+        if(curr==nullptr)curr=new Scope_Table(size++,Scope_num_buckets,nullptr);
+        return curr->InsertSymbol(symbol); 
+    }
+
     bool Remove(string name)
     {
         if(curr==nullptr)return false;

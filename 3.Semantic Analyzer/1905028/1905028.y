@@ -14,6 +14,7 @@ extern FILE *yyin;
 extern int yylineno;
 
 int error_count;
+int stkoffset=0;
 
 // ofstream cout("1905028_log_smaple.txt");
 ofstream errorout("1905028_error.txt");
@@ -265,19 +266,65 @@ void Print_output_func()
 }
 
 
+
+void Asm_statement(TreeNode* treeNode)
+{
+	//here
+
+
+
+
+
+
+}
+
+
+
+
+void Asm_statements(TreeNode* treeNode)
+{
+	if(treeNode->childlist.size()==1) Asm_statement(treeNode->childlist[0]);
+	if(treeNode->childlist.size()==2)
+	{
+		Asm_statements(treeNode->childlist[0]);
+		Asm_statement(treeNode->childlist[1]);
+		
+	}
+
+}
+
+
+
+
 void Asm_cmpnd_statement(TreeNode* treeNode)
 {
 	if(treeNode->childlist.size()==3)
 	{
-		treeNode= treeNode->childlist[1];
+		
+		//asm
+		symbol_table.Enter_Scope();
+		if(function_parameter_list.size()!=0)
+		{
+			for(int i=0;i<function_parameter_list.size();i++)
+			{
+				symbol_table.Insert(*(function_parameter_list[i]));
+			}
+			function_parameter_list.clear();
+		}
+		cout<<"----------Asm Scopes\n";
+		symbol_table.PrintAllScope();
+		Asm_statements(treeNode->childlist[1]);
+		symbol_table.Exit_Scope();
 
 	}
+
+
 }
 
 
 void Asm_func_def(TreeNode* treeNode)
 {
-	int stkoffset=-2;
+	stkoffset=-2;
 	string funcName=treeNode->childlist[1]->symbol->getName();
 
 	assembler<<"\t\t; FUNCTIONS ARE DEFINED HERE\n";
@@ -305,10 +352,10 @@ void Asm_func_def(TreeNode* treeNode)
 
 	if(treeNode->childlist.size()==6)
 	{
-		// Asm_cmpnd_statement(treeNode->childlist[5]);
+		Asm_cmpnd_statement(treeNode->childlist[5]);
 	}
 	else{
-		// Asm_cmpnd_statement(treeNode->childlist[4]);
+		Asm_cmpnd_statement(treeNode->childlist[4]);
 	}
 
 	assembler<<"L"<<++label_num<<":\t\t;returning from a function\n";

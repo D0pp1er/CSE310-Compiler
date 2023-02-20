@@ -47,6 +47,7 @@ public:
         // children=symbol->children;
         // start_line=symbol->start_line;
         // end_line=symbol->end_line;
+        stkoffset=symbol->stkoffset;
 
 
     }
@@ -74,6 +75,7 @@ public:
         // this->children=symbol.children;
         // this->start_line=symbol.start_line;
         // this->end_line=symbol.end_line;
+        this->stkoffset=symbol.stkoffset;
 
     }
 
@@ -111,7 +113,8 @@ public:
 
     friend ostream &operator<<(ostream& o, Symbol_Info& syminfo)
     {
-        o<<"<"<<syminfo.name<<","<<syminfo.type<<">";
+        // o<<"<"<<syminfo.name<<","<<syminfo.type<<">";
+        o<<"<"<<syminfo.name<<","<<syminfo.type<<","<<syminfo.data_type<<","<<syminfo.array_length<<","<<syminfo.info_type<<","<<syminfo.stkoffset<<">";
         return o;
     }
 
