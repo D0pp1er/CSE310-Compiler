@@ -30,6 +30,27 @@ Symbol_Table symbol_table(11);
 int label_num=0;
 
 
+//declaring the functions
+void Assemble(TreeNode*);
+void Asm_func_def(TreeNode*);
+void Asm_var_declaration(TreeNode*);
+void Asm_cmpnd_statement(TreeNode*);
+void Asm_declaration_list(TreeNode*);
+void Asm_statements(TreeNode*);
+void Asm_statement(TreeNode*);
+void Asm_exprssn_statement(TreeNode*);
+void Asm_exprssn(TreeNode*);
+void Asm_logic_exprssn(TreeNode*);
+void Asm_rel_exprssn(TreeNode*);
+void Asm_simple_exprssn(TreeNode*);
+void Asm_term(TreeNode*);
+void Asm_unary_exprssn(TreeNode*);
+void Asm_factor(TreeNode*);
+void Asm_arg_list(TreeNode*);
+void Asm_args(TreeNode*);
+// void Asm_Branching(TreeNode*);
+
+
 void yyerror(char *s)
 {
 	//write your code
@@ -313,13 +334,148 @@ void Asm_var_declaration(TreeNode* treeNode)
 	Asm_declaration_list(treeNode);
 
 
+
 }
 
+void Asm_args(TreeNode* treeNode)
+{
+	if(treeNode->symbol->getName()=="arguments COMMA logic_expression")
+	{
+		Asm_logic_exprssn(treeNode->childlist[2]);
+		Asm_args(treeNode->childlist[0]);
+
+	}
+	else if(treeNode->symbol->getName()=="logic_expression")
+	{
+		Asm_logic_exprssn(treeNode->childlist[0]);
+	}
+}
+
+void  Asm_arg_list(TreeNode* treeNode)
+{
+	if(treeNode->symbol->getName()=="arguments")
+	{
+		Asm_args(treeNode->childlist[0]);
+	}
+
+
+}
 
 void Asm_factor(TreeNode* treeNode)
 {
-	//here
-	
+	//debug
+	if(treeNode->symbol->get_return_type()=="CONST_INT"||treeNode->symbol->get_return_type()=="CONST_FLOAT")
+	{
+		assembler<<"\tMOV AX, "<<treeNode->childlist[0]->symbol->getName()<<endl;
+		if(NegateFlag)
+		{
+			assembler<<"\tNEG AX\n";
+			NegateFlag=false;
+		}
+		assembler<<"\tPUSH AX\n";
+	}
+	//debug here
+	else if(treeNode->symbol->getName()=="variable")
+	{
+		string name="";
+		if(treeNode->childlist[0]->childlist.size()==1)
+		{
+			string temp=treeNode->childlist[0]->symbol->getName();
+			Symbol_Info* sym=symbol_table.Lookup(temp);
+			if(sym->stkoffset==0)name=sym->getName();
+			else if(sym->stkoffset>0)name="[BP-"+to_string(sym->stkoffset)+"]";
+			else name="[BP+"+to_string((sym->stkoffset)*(-1))+"]";
+		}
+		else
+		{
+			string temp=treeNode->childlist[0]->childlist[0]->symbol->getName();
+			Symbol_Info* sym=symbol_table.Lookup(temp);
+			Asm_exprssn(treeNode->childlist[0]->childlist[2]);
+			assembler<<"\tPOP SI\n";
+			assembler<<"\tSHL SI,1\n";
+			if(sym->stkoffset==0)name=sym->getName()+"[SI]";
+			else if(sym->stkoffset>0)
+			{
+				assembler<<"\tNEG SI\n";
+				assembler<<"\tADD SI, "<<sym->stkoffset<<endl;
+				name="BP[SI]";
+			}
+			else
+			{
+				assembler<<"\tSUB SI, "<<sym->stkoffset<<endl;
+				name="BP[SI]";
+			}
+
+		}
+
+		assembler<<"\tMOV AX, "<<name<<endl;
+		if(NegateFlag)
+		{
+			assembler<<"\tNEG AX\n";
+			NegateFlag=false;
+		}
+		assembler<<"\tPUSH AX\n";
+	}
+
+
+
+	else if(treeNode->symbol->getName()=="variable INCOP"||treeNode->symbol->getName()=="variable DECOP")
+	{	
+		string Opt="";
+		if(treeNode->symbol->getName()=="variable INCOP")Opt="INC";
+		else Opt="DEC";
+		string name="";
+		if(treeNode->childlist[0]->childlist.size()==1)
+		{
+			string temp=treeNode->childlist[0]->childlist[0]->symbol->getName();
+			Symbol_Info* sym=symbol_table.Lookup(temp);
+			if(sym->stkoffset==0)name=sym->getName();
+			else if(sym->stkoffset>0)name="[BP-"+to_string(sym->stkoffset)+"]";
+			else name="[BP+"+to_string((sym->stkoffset)*(-1))+"]";
+		}
+		else
+		{
+			string temp=treeNode->childlist[0]->childlist[0]->symbol->getName();
+			Symbol_Info* sym=symbol_table.Lookup(temp);
+			Asm_exprssn(treeNode->childlist[0]->childlist[2]);
+			assembler<<"\tPOP SI\n";
+			assembler<<"\tSHL SI, 1\n";
+			if(sym->stkoffset==0)name=sym->getName()+"[SI]";
+			else if(sym->stkoffset>0)
+			{
+				assembler<<"\tNEG SI\n";
+				assembler<<"\tADD SI, "<<sym->stkoffset<<endl;
+				name="BP[SI]";
+			}
+			else
+			{
+				assembler<<"\tSUB SI, "<<sym->stkoffset<<endl;
+				name="BP[SI]";
+			}
+		}
+
+		assembler<<"\tMOV AX, "<<name<<endl;
+		if(NegateFlag)
+		{
+			assembler<<"\tNEG AX\n";
+			NegateFlag=false;
+		}
+
+		assembler<<"\tPUSH AX\n";
+		// assembler<<"\tINC AX\n";
+		assembler<<"\t"<<Opt<<" AX\n";
+		assembler<<"\tMOV "<<name<<" , AX\n";
+
+	}
+
+	else if(treeNode->symbol->getName()=="LPAREN expression RPAREN")Asm_exprssn(treeNode->childlist[1]);
+	else if(treeNode->symbol->getName()=="ID LPAREN argument_list RPAREN")
+	{
+		Asm_arg_list(treeNode->childlist[2]);
+		assembler<<"\tCALL "<<(treeNode->childlist[0]->symbol->getName())<<endl;
+		assembler<<"\tPUSH AX\n";
+	}
+
 }
 
 
@@ -456,7 +612,7 @@ void Asm_rel_exprssn(TreeNode* treeNode)
 void Asm_logic_exprssn(TreeNode* treeNode)
 {
 	
-	if(treeNode->childlist.size==3)
+	if(treeNode->childlist.size()==3)
 	{
 		Asm_rel_exprssn(treeNode->childlist[0]);
 		string Lbl_1="L"+to_string(++label_num);
@@ -1713,7 +1869,7 @@ variable : ID
 				error_count++;
 			}
 
-			$1->symbol->setName($1->symbol->getName()+"["+$3->symbol->getName()+"]");
+			// $1->symbol->setName($1->symbol->getName()+"["+$3->symbol->getName()+"]");
 			$$->symbol=$1->symbol;
 
 		} 
@@ -1982,13 +2138,13 @@ term :	unary_expression
 					error_count++;
 				}
 
-				if($1->symbol->get_data_type()!="int"||$3->symbol->get_data_type()!="int")
-				{
-					errorout<<"Line# "<<$$->first_line<<": Operands of modulus must be integers \n";
-					error_count++;
-				}
-				$1->symbol->set_data_type("int");
-				$3->symbol->set_data_type("int");
+				// if($1->symbol->get_data_type()!="int"||$3->symbol->get_data_type()!="int")
+				// {
+				// 	errorout<<"Line# "<<$$->first_line<<": Operands of modulus must be integers \n";
+				// 	error_count++;
+				// }
+				// $1->symbol->set_data_type("int");
+				// $3->symbol->set_data_type("int");
 
 			}
 			$$->symbol=new Symbol_Info(code_text,"term",Type_Cast_Auto($1->symbol,$3->symbol));
@@ -2066,7 +2222,7 @@ factor	: variable
 		{
 			
 			$$=new TreeNode(nullptr,"factor : variable");
-
+			
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
@@ -2078,7 +2234,8 @@ factor	: variable
 			cout<<"factor	: variable "<<endl;
 
 			//change
-			$$->symbol=$1->symbol;
+			// $$->symbol=$1->symbol;
+			$$->symbol=new Symbol_Info("variable","rule");
 		} 
 	| ID LPAREN argument_list RPAREN
 			{
@@ -2100,7 +2257,8 @@ factor	: variable
 			//change 
 			FUNCTION_CALL($1->symbol,$3->Nodes_param_list,$$->first_line);
 			string code_text=$1->symbol->getName()+"("+StringFromSymbol($3->Nodes_param_list)+")";
-			$$->symbol=new Symbol_Info(code_text,"function",$1->symbol->get_return_type());
+			// $$->symbol=new Symbol_Info(code_text,"function",$1->symbol->get_return_type());
+			$$->symbol=new Symbol_Info("ID LPAREN argument_list RPAREN","function",$1->symbol->get_return_type());
 
 
 
@@ -2126,7 +2284,8 @@ factor	: variable
 			cout<<"factor : LPAREN expression RPAREN "<<endl;
 
 			//change
-			$$->symbol=new Symbol_Info("("+$2->symbol->getName()+")","factor",$2->symbol->get_data_type());
+			// $$->symbol=new Symbol_Info("("+$2->symbol->getName()+")","factor",$2->symbol->get_data_type());
+			$$->symbol=new Symbol_Info("LPAREN expression RPAREN","factor",$2->symbol->get_data_type());
 
 
 		}
@@ -2145,7 +2304,7 @@ factor	: variable
 
 			cout<<"factor : CONST_INT "<<endl;
 			//change
-			$$->symbol=new Symbol_Info($1->symbol->getName(),"factor","int");
+			$$->symbol=new Symbol_Info($1->symbol->getName(),"factor","CONST_INT");
 
 		}
 	| CONST_FLOAT
@@ -2163,7 +2322,7 @@ factor	: variable
 
 			cout<<"factor : CONST_FLOAT "<<endl;
 			//change
-			$$->symbol=new Symbol_Info($1->symbol->getName(),"factor","float");
+			$$->symbol=new Symbol_Info($1->symbol->getName(),"factor","CONST_FLOAT");
 
 		}
 	| variable INCOP
@@ -2183,7 +2342,8 @@ factor	: variable
 
 			cout<<"factor : variable INCOP "<<endl;
 			//change
-			$$->symbol=new Symbol_Info($1->symbol->getName()+"++","factor",$1->symbol->get_data_type());
+			// $$->symbol=new Symbol_Info($1->symbol->getName()+"++","factor",$1->symbol->get_data_type());
+			$$->symbol=new Symbol_Info("variable INCOP","factor",$1->symbol->get_data_type());
 
 
 		} 
@@ -2203,7 +2363,8 @@ factor	: variable
 
 			cout<<"factor : variable DECOP "<<endl;
 			//change
-			$$->symbol=new Symbol_Info($1->symbol->getName()+"--","factor",$1->symbol->get_data_type());
+			// $$->symbol=new Symbol_Info($1->symbol->getName()+"--","factor",$1->symbol->get_data_type());
+			$$->symbol=new Symbol_Info("variable DECOP","factor",$1->symbol->get_data_type());
 
 		}
 	;
@@ -2225,6 +2386,7 @@ argument_list : arguments
 
 			//change
 			$$->Nodes_param_list=$1->Nodes_param_list;
+			$$->symbol=new Symbol_Info("arguments","rule");
 		}
 			  |
 			  		{
@@ -2263,6 +2425,8 @@ arguments : arguments COMMA logic_expression
 			$$->Nodes_param_list=$1->Nodes_param_list;
 			$$->Nodes_param_list.push_back($3->symbol);
 
+			$$->symbol=new Symbol_Info("arguments COMMA logic_expression","rule");
+
 		}
 	      | logic_expression
 		  		{
@@ -2282,6 +2446,7 @@ arguments : arguments COMMA logic_expression
 			//change
 			$$->Nodes_param_list=$1->Nodes_param_list;
 			$$->Nodes_param_list.push_back($1->symbol);
+			$$->symbol=new Symbol_Info("logic_expression","rule");
 		}
 	      ;
  
