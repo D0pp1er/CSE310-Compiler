@@ -18,12 +18,14 @@ int error_count;
 // ofstream cout("1905028_log_smaple.txt");
 ofstream errorout("1905028_error.txt");
 ofstream parseTree("1905028_ParseTree.txt");
+ofstream assembler("1905028_code.asm");
 vector<Symbol_Info*> function_parameter_list;
+vector<Symbol_Info*> global_vars;
 int  parameter_list_line_no;
 
 
 Symbol_Table symbol_table(11);
-
+int label_num=0;
 
 
 void yyerror(char *s)
@@ -249,6 +251,144 @@ void DECLARE_FUNCTION_PARAMETER_LIST(vector<Symbol_Info*> &params,int line=yylin
 	}
 	params.clear();
 }
+void Print_ln_func()
+{
+	assembler<<"new_line proc\n\tpush ax\n\tpush dx\n\tmov ah,2\n\tmov dl,cr\n\tint 21h\n\tmov ah,2\n\tmov dl,lf\n\tint 21h\n\tpop dx\n\tpop ax\n\tret\nnew_line endp\n";
+}
+
+void Print_output_func()
+{
+	assembler<<
+	"print_output proc  ;print what is in ax\n\tpush ax\n\tpush bx\n\tpush cx\n\tpush dx\n\tpush si\n\tlea si,number\n\tmov bx,10\n\tadd si,4\n\tcmp ax,0\n\tjnge negate\n\tprint:\n";
+	assembler<<"\txor dx,dx\n\tdiv bx\n\tmov [si],dl\n\tadd [si],'0'\n\tdec si\n\tcmp ax,0\n\tjne print\n\tinc si\n\tlea dx,si\n\tmov ah,9\n\tint 21h\n\tpop si\n";
+	assembler<<"\tpop dx\n\tpop cx\n\tpop bx\n\tpop ax\n\tret\n\tnegate:\n\tpush ax\n\tmov ah,2\n\tmov dl,'-'\n\tint 21h\n\tpop ax\n\tneg ax\n\tjmp print\nprint_output endp\n";
+}
+
+
+void Asm_cmpnd_statement(TreeNode* treeNode)
+{
+	if(treeNode->childlist.size()==3)
+	{
+		treeNode= treeNode->childlist[1];
+
+	}
+}
+
+
+void Asm_func_def(TreeNode* treeNode)
+{
+	int stkoffset=-2;
+	string funcName=treeNode->childlist[1]->symbol->getName();
+
+	assembler<<"\t\t; FUNCTIONS ARE DEFINED HERE\n";
+	assembler<<funcName<<" PROC \n";
+	if(funcName=="main")
+	{
+		assembler<<"\tMOV AX, @DATA\n";
+		assembler<<"\tMOV DS, AX\n";		
+	}
+
+	if(treeNode->childlist.size()==6)
+	{
+		function_parameter_list=treeNode->childlist[3]->Nodes_param_list;
+		for(int i=0;i<function_parameter_list.size();i++)
+		{
+			stkoffset=-2;
+			function_parameter_list[i]->stkoffset=stkoffset;
+		}
+	}
+
+	stkoffset=0;
+	assembler<<"\t\t; pushing bp\n";
+	assembler<<"\tPUSH BP\n";
+	assembler<<"\tMOV BP , SP\n";
+
+	if(treeNode->childlist.size()==6)
+	{
+		// Asm_cmpnd_statement(treeNode->childlist[5]);
+	}
+	else{
+		// Asm_cmpnd_statement(treeNode->childlist[4]);
+	}
+
+	assembler<<"L"<<++label_num<<":\t\t;returning from a function\n";
+	assembler<<"\tADD SP, "<<stkoffset<<endl;
+	assembler<<"\tPOP BP\n";
+	if(funcName=="main")
+	{
+		assembler<<"\tMOV AX,4CH\n";
+		assembler<<"\tINT 21H\n";
+
+	}
+	else
+	{
+		if(function_parameter_list.size()>0)
+		{
+			assembler<<"\t RET "<<2*function_parameter_list.size()<<endl;
+
+		}
+		else
+		{
+			assembler<<"\tRET\n";
+		}
+	}
+	assembler<<funcName<<" ENDP\n";
+
+}
+
+
+
+void Assemble(TreeNode* sym)
+{
+	//asm
+	assembler<<".MODEL SMALL\n";
+	assembler<<".STACK 1000H\n";
+	assembler<<".Data\n";
+	assembler<<"\tCR EQU 0DH\n";
+	assembler<<"\tLF EQU 0AH\n";
+	assembler<<"\tnumber DB \"00000$\"\n";
+	TreeNode* prog=(sym->childlist[0]);
+	vector<TreeNode*> units;
+	while(prog->childlist.size()==2)
+	{
+		units.push_back(prog->childlist[1]);
+		prog=prog->childlist[0];
+	}
+	units.push_back(prog->childlist[0]);
+	assembler<<"\t\t;global variables are declared here\n";
+
+	for(Symbol_Info* symbol: global_vars)
+	{
+		if(symbol->is_array()){
+			assembler<<"\t"<<symbol->getName()<<" DW "<<symbol->get_array_length()<<" DUP (0000H)\n";
+		}
+		else
+		{
+			assembler<<"\t"<<symbol->getName()<<" DW 1 DUP (0000H)\n"; 
+		}
+	}
+
+	assembler<<".CODE\n";
+
+	for(TreeNode* unit_1:units)
+	{
+		if(unit_1->symbol!=nullptr){
+			if(unit_1->symbol->getName()=="func_definition")
+			{
+				Asm_func_def(unit_1->childlist[0]);
+			}
+		}
+	}
+
+	Print_ln_func();
+	Print_output_func();
+	assembler<<"END main\n";
+
+
+	 
+
+}
+
 
 %}
 
@@ -295,8 +435,8 @@ start : program
 
 		$$->printchildren(1,parseTree);
 
-		delete $$;
-
+		// delete $$;
+		Assemble($$);
 
 	}
 	;
@@ -322,6 +462,7 @@ program : program unit
 	{
 			
 		$$=new TreeNode(nullptr,"program : unit");
+		$$->symbol=new Symbol_Info("func_definition","rule");
 
 		$$->is_Terminal = false;
 
@@ -369,6 +510,7 @@ unit : var_declaration
 	 	{
 		
 		$$=new TreeNode(nullptr,"unit : func_definition");
+		$$->symbol=new Symbol_Info("func_definition","rule");
 
 		$$->is_Terminal = false;
 
@@ -476,7 +618,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN{DEFINE_FUNCTION
 		{
 			
 			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
-
+			$$->symbol=new Symbol_Info("func_definition","rule");
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
@@ -496,6 +638,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN{DEFINE_FUNCTION
 		{
 			
 			$$=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
+			$$->symbol=new Symbol_Info("func_definition","rule");
 
 			$$->is_Terminal = false;
 
@@ -769,6 +912,12 @@ declaration_list : declaration_list COMMA ID
 			$1->Nodes_param_list.push_back($3->symbol);
 			$$->Nodes_param_list=$1->Nodes_param_list;
 
+			//asm
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back($3->symbol);
+			}
+
 		}
  		  | declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
 		{
@@ -793,6 +942,11 @@ declaration_list : declaration_list COMMA ID
 			$3->symbol->set_array_length($5->symbol->getName());
 			$1->Nodes_param_list.push_back($3->symbol);
 			$$->Nodes_param_list=$1->Nodes_param_list;
+			//asm
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back($3->symbol);
+			}
 		
 		
 		}
@@ -814,6 +968,12 @@ declaration_list : declaration_list COMMA ID
 
 			// $$->Nodes_param_list=new vector<Symbol_Info*>();
 			$$->Nodes_param_list.push_back($1->symbol);
+
+			//asm
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back($1->symbol);
+			}
 
 
 		}
@@ -841,6 +1001,13 @@ declaration_list : declaration_list COMMA ID
 			// $$->Nodes_param_list=new vector<Symbol_Info*>();
 			$1->symbol->set_array_length($3->symbol->getName()); 
 			$$->Nodes_param_list.push_back($1->symbol);
+
+			//asm
+
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back($1->symbol);
+			}
 
 
 

@@ -88,12 +88,14 @@ int error_count;
 // ofstream cout("1905028_log_smaple.txt");
 ofstream errorout("1905028_error.txt");
 ofstream parseTree("1905028_ParseTree.txt");
+ofstream assembler("1905028_code.asm");
 vector<Symbol_Info*> function_parameter_list;
+vector<Symbol_Info*> global_vars;
 int  parameter_list_line_no;
 
 
 Symbol_Table symbol_table(11);
-
+int label_num=0;
 
 
 void yyerror(char *s)
@@ -319,9 +321,147 @@ void DECLARE_FUNCTION_PARAMETER_LIST(vector<Symbol_Info*> &params,int line=yylin
 	}
 	params.clear();
 }
+void Print_ln_func()
+{
+	assembler<<"new_line proc\n\tpush ax\n\tpush dx\n\tmov ah,2\n\tmov dl,cr\n\tint 21h\n\tmov ah,2\n\tmov dl,lf\n\tint 21h\n\tpop dx\n\tpop ax\n\tret\nnew_line endp\n";
+}
+
+void Print_output_func()
+{
+	assembler<<
+	"print_output proc  ;print what is in ax\n\tpush ax\n\tpush bx\n\tpush cx\n\tpush dx\n\tpush si\n\tlea si,number\n\tmov bx,10\n\tadd si,4\n\tcmp ax,0\n\tjnge negate\n\tprint:\n";
+	assembler<<"\txor dx,dx\n\tdiv bx\n\tmov [si],dl\n\tadd [si],'0'\n\tdec si\n\tcmp ax,0\n\tjne print\n\tinc si\n\tlea dx,si\n\tmov ah,9\n\tint 21h\n\tpop si\n";
+	assembler<<"\tpop dx\n\tpop cx\n\tpop bx\n\tpop ax\n\tret\n\tnegate:\n\tpush ax\n\tmov ah,2\n\tmov dl,'-'\n\tint 21h\n\tpop ax\n\tneg ax\n\tjmp print\nprint_output endp\n";
+}
 
 
-#line 325 "y.tab.c"
+void Asm_cmpnd_statement(TreeNode* treeNode)
+{
+	if(treeNode->childlist.size()==3)
+	{
+		treeNode= treeNode->childlist[1];
+
+	}
+}
+
+
+void Asm_func_def(TreeNode* treeNode)
+{
+	int stkoffset=-2;
+	string funcName=treeNode->childlist[1]->symbol->getName();
+
+	assembler<<"\t\t; FUNCTIONS ARE DEFINED HERE\n";
+	assembler<<funcName<<" PROC \n";
+	if(funcName=="main")
+	{
+		assembler<<"\tMOV AX, @DATA\n";
+		assembler<<"\tMOV DS, AX\n";		
+	}
+
+	if(treeNode->childlist.size()==6)
+	{
+		function_parameter_list=treeNode->childlist[3]->Nodes_param_list;
+		for(int i=0;i<function_parameter_list.size();i++)
+		{
+			stkoffset=-2;
+			function_parameter_list[i]->stkoffset=stkoffset;
+		}
+	}
+
+	stkoffset=0;
+	assembler<<"\t\t; pushing bp\n";
+	assembler<<"\tPUSH BP\n";
+	assembler<<"\tMOV BP , SP\n";
+
+	if(treeNode->childlist.size()==6)
+	{
+		// Asm_cmpnd_statement(treeNode->childlist[5]);
+	}
+	else{
+		// Asm_cmpnd_statement(treeNode->childlist[4]);
+	}
+
+	assembler<<"L"<<++label_num<<":\t\t;returning from a function\n";
+	assembler<<"\tADD SP, "<<stkoffset<<endl;
+	assembler<<"\tPOP BP\n";
+	if(funcName=="main")
+	{
+		assembler<<"\tMOV AX,4CH\n";
+		assembler<<"\tINT 21H\n";
+
+	}
+	else
+	{
+		if(function_parameter_list.size()>0)
+		{
+			assembler<<"\t RET "<<2*function_parameter_list.size()<<endl;
+
+		}
+		else
+		{
+			assembler<<"\tRET\n";
+		}
+	}
+	assembler<<funcName<<" ENDP\n";
+
+}
+
+
+
+void Assemble(TreeNode* sym)
+{
+	//asm
+	assembler<<".MODEL SMALL\n";
+	assembler<<".STACK 1000H\n";
+	assembler<<".Data\n";
+	assembler<<"\tCR EQU 0DH\n";
+	assembler<<"\tLF EQU 0AH\n";
+	assembler<<"\tnumber DB \"00000$\"\n";
+	TreeNode* prog=(sym->childlist[0]);
+	vector<TreeNode*> units;
+	while(prog->childlist.size()==2)
+	{
+		units.push_back(prog->childlist[1]);
+		prog=prog->childlist[0];
+	}
+	units.push_back(prog->childlist[0]);
+	assembler<<"\t\t;global variables are declared here\n";
+
+	for(Symbol_Info* symbol: global_vars)
+	{
+		if(symbol->is_array()){
+			assembler<<"\t"<<symbol->getName()<<" DW "<<symbol->get_array_length()<<" DUP (0000H)\n";
+		}
+		else
+		{
+			assembler<<"\t"<<symbol->getName()<<" DW 1 DUP (0000H)\n"; 
+		}
+	}
+
+	assembler<<".CODE\n";
+
+	for(TreeNode* unit_1:units)
+	{
+		if(unit_1->symbol!=nullptr){
+			if(unit_1->symbol->getName()=="func_definition")
+			{
+				Asm_func_def(unit_1->childlist[0]);
+			}
+		}
+	}
+
+	Print_ln_func();
+	Print_output_func();
+	assembler<<"END main\n";
+
+
+	 
+
+}
+
+
+
+#line 465 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -458,11 +598,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 255 "1905028.y"
+#line 395 "1905028.y"
 
     TreeNode* treeNode;
 
-#line 466 "y.tab.c"
+#line 606 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -942,13 +1082,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   280,   280,   304,   321,   338,   353,   368,   385,   432,
-     475,   475,   495,   495,   517,   543,   568,   592,   614,   614,
-     634,   634,   655,   700,   716,   732,   751,   773,   799,   820,
-     850,   868,   887,   903,   919,   935,   957,   977,   999,  1020,
-    1049,  1069,  1085,  1106,  1141,  1187,  1204,  1276,  1293,  1319,
-    1336,  1361,  1380,  1405,  1422,  1465,  1487,  1509,  1529,  1547,
-    1575,  1597,  1615,  1633,  1654,  1675,  1694,  1710,  1731
+       0,   420,   420,   444,   461,   479,   494,   509,   527,   574,
+     617,   617,   637,   637,   660,   686,   711,   735,   757,   757,
+     777,   777,   798,   843,   859,   875,   894,   922,   953,   980,
+    1017,  1035,  1054,  1070,  1086,  1102,  1124,  1144,  1166,  1187,
+    1216,  1236,  1252,  1273,  1308,  1354,  1371,  1443,  1460,  1486,
+    1503,  1528,  1547,  1572,  1589,  1632,  1654,  1676,  1696,  1714,
+    1742,  1764,  1782,  1800,  1821,  1842,  1861,  1877,  1898
 };
 #endif
 
@@ -1596,7 +1736,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* start: program  */
-#line 281 "1905028.y"
+#line 421 "1905028.y"
         {
 		//write your code in this block in all the similar blocks below
 
@@ -1614,15 +1754,15 @@ yyreduce:
 
 		(yyval.treeNode)->printchildren(1,parseTree);
 
-		delete (yyval.treeNode);
-
+		// delete $$;
+		Assemble((yyval.treeNode));
 
 	}
-#line 1622 "y.tab.c"
+#line 1762 "y.tab.c"
     break;
 
   case 3: /* program: program unit  */
-#line 305 "1905028.y"
+#line 445 "1905028.y"
         {
 		
 		(yyval.treeNode)=new TreeNode(nullptr,"program : program unit");
@@ -1639,14 +1779,15 @@ yyreduce:
 
 		cout<<"program : program unit "<<endl;
 	}
-#line 1643 "y.tab.c"
+#line 1783 "y.tab.c"
     break;
 
   case 4: /* program: unit  */
-#line 322 "1905028.y"
+#line 462 "1905028.y"
         {
 			
 		(yyval.treeNode)=new TreeNode(nullptr,"program : unit");
+		(yyval.treeNode)->symbol=new Symbol_Info("func_definition","rule");
 
 		(yyval.treeNode)->is_Terminal = false;
 
@@ -1658,11 +1799,11 @@ yyreduce:
 
 		cout<<"program : unit "<<endl;
 	}
-#line 1662 "y.tab.c"
+#line 1803 "y.tab.c"
     break;
 
   case 5: /* unit: var_declaration  */
-#line 339 "1905028.y"
+#line 480 "1905028.y"
         {
 		
 		(yyval.treeNode)=new TreeNode(nullptr,"unit : var_declaration");
@@ -1677,11 +1818,11 @@ yyreduce:
 
 		cout<<"unit : var_declaration "<<endl;
 	}
-#line 1681 "y.tab.c"
+#line 1822 "y.tab.c"
     break;
 
   case 6: /* unit: func_declaration  */
-#line 354 "1905028.y"
+#line 495 "1905028.y"
                 {
 		
 		(yyval.treeNode)=new TreeNode(nullptr,"unit : func_declaration");
@@ -1696,14 +1837,15 @@ yyreduce:
 
 		cout<<"unit : func_declaration "<<endl;
 	}
-#line 1700 "y.tab.c"
+#line 1841 "y.tab.c"
     break;
 
   case 7: /* unit: func_definition  */
-#line 369 "1905028.y"
+#line 510 "1905028.y"
                 {
 		
 		(yyval.treeNode)=new TreeNode(nullptr,"unit : func_definition");
+		(yyval.treeNode)->symbol=new Symbol_Info("func_definition","rule");
 
 		(yyval.treeNode)->is_Terminal = false;
 
@@ -1715,11 +1857,11 @@ yyreduce:
 
 		cout<<"unit : func_definition "<<endl;
 	}
-#line 1719 "y.tab.c"
+#line 1861 "y.tab.c"
     break;
 
   case 8: /* func_declaration: type_specifier ID LPAREN parameter_list RPAREN SEMICOLON  */
-#line 386 "1905028.y"
+#line 528 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
@@ -1766,11 +1908,11 @@ yyreduce:
 
 		
 		}
-#line 1770 "y.tab.c"
+#line 1912 "y.tab.c"
     break;
 
   case 9: /* func_declaration: type_specifier ID LPAREN RPAREN SEMICOLON  */
-#line 433 "1905028.y"
+#line 575 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
@@ -1811,21 +1953,21 @@ yyreduce:
 			}
 
 		}
-#line 1815 "y.tab.c"
+#line 1957 "y.tab.c"
     break;
 
   case 10: /* $@1: %empty  */
-#line 475 "1905028.y"
+#line 617 "1905028.y"
                                                                 {DEFINE_FUNCTION((yyvsp[-3].treeNode)->symbol->getName(),(yyvsp[-4].treeNode)->symbol->getName(),(yyvsp[-4].treeNode)->first_line,(yyvsp[-1].treeNode)->Nodes_param_list);}
-#line 1821 "y.tab.c"
+#line 1963 "y.tab.c"
     break;
 
   case 11: /* func_definition: type_specifier ID LPAREN parameter_list RPAREN $@1 compound_statement  */
-#line 476 "1905028.y"
+#line 618 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
-
+			(yyval.treeNode)->symbol=new Symbol_Info("func_definition","rule");
 			(yyval.treeNode)->is_Terminal = false;
 
 			(yyval.treeNode)->childlist.push_back((yyvsp[-6].treeNode));
@@ -1841,20 +1983,21 @@ yyreduce:
 
 			cout<<"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement "<<endl;
 		}
-#line 1845 "y.tab.c"
+#line 1987 "y.tab.c"
     break;
 
   case 12: /* $@2: %empty  */
-#line 495 "1905028.y"
+#line 637 "1905028.y"
                                                  {DEFINE_FUNCTION((yyvsp[-2].treeNode)->symbol->getName(),(yyvsp[-3].treeNode)->symbol->getName(),(yyvsp[-3].treeNode)->first_line,vector<Symbol_Info*>());}
-#line 1851 "y.tab.c"
+#line 1993 "y.tab.c"
     break;
 
   case 13: /* func_definition: type_specifier ID LPAREN RPAREN $@2 compound_statement  */
-#line 496 "1905028.y"
+#line 638 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
+			(yyval.treeNode)->symbol=new Symbol_Info("func_definition","rule");
 
 			(yyval.treeNode)->is_Terminal = false;
 
@@ -1870,11 +2013,11 @@ yyreduce:
 
 			cout<<"func_definition : type_specifier ID LPAREN RPAREN compound_statement "<<endl;
 		}
-#line 1874 "y.tab.c"
+#line 2017 "y.tab.c"
     break;
 
   case 14: /* parameter_list: parameter_list COMMA type_specifier ID  */
-#line 518 "1905028.y"
+#line 661 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"parameter_list : parameter_list COMMA type_specifier ID");
@@ -1900,11 +2043,11 @@ yyreduce:
 
 
 		}
-#line 1904 "y.tab.c"
+#line 2047 "y.tab.c"
     break;
 
   case 15: /* parameter_list: parameter_list COMMA type_specifier  */
-#line 544 "1905028.y"
+#line 687 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"parameter_list : parameter_list COMMA type_specifier");
@@ -1929,11 +2072,11 @@ yyreduce:
 
 
 		}
-#line 1933 "y.tab.c"
+#line 2076 "y.tab.c"
     break;
 
   case 16: /* parameter_list: type_specifier ID  */
-#line 569 "1905028.y"
+#line 712 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"parameter_list : type_specifier ID");
@@ -1957,11 +2100,11 @@ yyreduce:
 
 
 		}
-#line 1961 "y.tab.c"
+#line 2104 "y.tab.c"
     break;
 
   case 17: /* parameter_list: type_specifier  */
-#line 593 "1905028.y"
+#line 736 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"parameter_list : type_specifier");
@@ -1980,17 +2123,17 @@ yyreduce:
 			(yyval.treeNode)->Nodes_param_list.push_back(new Symbol_Info((yyvsp[0].treeNode)->symbol->getName(),"",(yyvsp[0].treeNode)->symbol->getName()));
 
 		}
-#line 1984 "y.tab.c"
+#line 2127 "y.tab.c"
     break;
 
   case 18: /* $@3: %empty  */
-#line 614 "1905028.y"
+#line 757 "1905028.y"
                           {symbol_table.Enter_Scope();DECLARE_FUNCTION_PARAMETER_LIST(function_parameter_list,parameter_list_line_no);}
-#line 1990 "y.tab.c"
+#line 2133 "y.tab.c"
     break;
 
   case 19: /* compound_statement: LCURL $@3 statements RCURL  */
-#line 615 "1905028.y"
+#line 758 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"compound_statement : LCURL statements RCURL");
@@ -2010,17 +2153,17 @@ yyreduce:
 			symbol_table.PrintAllScope();
 			symbol_table.Exit_Scope();
 		}
-#line 2014 "y.tab.c"
+#line 2157 "y.tab.c"
     break;
 
   case 20: /* $@4: %empty  */
-#line 634 "1905028.y"
+#line 777 "1905028.y"
                            {symbol_table.Enter_Scope();}
-#line 2020 "y.tab.c"
+#line 2163 "y.tab.c"
     break;
 
   case 21: /* compound_statement: LCURL $@4 RCURL  */
-#line 635 "1905028.y"
+#line 778 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"compound_statement : LCURL RCURL");
@@ -2039,11 +2182,11 @@ yyreduce:
 			symbol_table.PrintAllScope();
 			symbol_table.Exit_Scope();
 		}
-#line 2043 "y.tab.c"
+#line 2186 "y.tab.c"
     break;
 
   case 22: /* var_declaration: type_specifier declaration_list SEMICOLON  */
-#line 656 "1905028.y"
+#line 799 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"var_declaration : type_specifier declaration_list SEMICOLON");
@@ -2086,11 +2229,11 @@ yyreduce:
 
 
 		}
-#line 2090 "y.tab.c"
+#line 2233 "y.tab.c"
     break;
 
   case 23: /* type_specifier: INT  */
-#line 701 "1905028.y"
+#line 844 "1905028.y"
                 {
 			//change
 			Symbol_Info* symbol=new Symbol_Info("int","INT");
@@ -2106,11 +2249,11 @@ yyreduce:
 
 			cout<<"type_specifier	: INT "<<endl;
 		}
-#line 2110 "y.tab.c"
+#line 2253 "y.tab.c"
     break;
 
   case 24: /* type_specifier: FLOAT  */
-#line 717 "1905028.y"
+#line 860 "1905028.y"
                 {
 			//change
 			Symbol_Info* symbol=new Symbol_Info("float","FLOAT");
@@ -2126,11 +2269,11 @@ yyreduce:
 
 			cout<<"type_specifier	: FLOAT "<<endl;
 		}
-#line 2130 "y.tab.c"
+#line 2273 "y.tab.c"
     break;
 
   case 25: /* type_specifier: VOID  */
-#line 733 "1905028.y"
+#line 876 "1905028.y"
                 {
 			//change
 			Symbol_Info* symbol=new Symbol_Info("void","VOID");
@@ -2147,11 +2290,11 @@ yyreduce:
 
 			cout<<"type_specifier	: VOID "<<endl;
 		}
-#line 2151 "y.tab.c"
+#line 2294 "y.tab.c"
     break;
 
   case 26: /* declaration_list: declaration_list COMMA ID  */
-#line 752 "1905028.y"
+#line 895 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"declaration_list : declaration_list COMMA ID");
@@ -2172,12 +2315,18 @@ yyreduce:
 			(yyvsp[-2].treeNode)->Nodes_param_list.push_back((yyvsp[0].treeNode)->symbol);
 			(yyval.treeNode)->Nodes_param_list=(yyvsp[-2].treeNode)->Nodes_param_list;
 
+			//asm
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back((yyvsp[0].treeNode)->symbol);
+			}
+
 		}
-#line 2177 "y.tab.c"
+#line 2326 "y.tab.c"
     break;
 
   case 27: /* declaration_list: declaration_list COMMA ID LTHIRD CONST_INT RTHIRD  */
-#line 774 "1905028.y"
+#line 923 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
@@ -2200,14 +2349,19 @@ yyreduce:
 			(yyvsp[-3].treeNode)->symbol->set_array_length((yyvsp[-1].treeNode)->symbol->getName());
 			(yyvsp[-5].treeNode)->Nodes_param_list.push_back((yyvsp[-3].treeNode)->symbol);
 			(yyval.treeNode)->Nodes_param_list=(yyvsp[-5].treeNode)->Nodes_param_list;
+			//asm
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back((yyvsp[-3].treeNode)->symbol);
+			}
 		
 		
 		}
-#line 2207 "y.tab.c"
+#line 2361 "y.tab.c"
     break;
 
   case 28: /* declaration_list: ID  */
-#line 800 "1905028.y"
+#line 954 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"declaration_list : ID");
@@ -2226,13 +2380,19 @@ yyreduce:
 			// $$->Nodes_param_list=new vector<Symbol_Info*>();
 			(yyval.treeNode)->Nodes_param_list.push_back((yyvsp[0].treeNode)->symbol);
 
+			//asm
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back((yyvsp[0].treeNode)->symbol);
+			}
+
 
 		}
-#line 2232 "y.tab.c"
+#line 2392 "y.tab.c"
     break;
 
   case 29: /* declaration_list: ID LTHIRD CONST_INT RTHIRD  */
-#line 822 "1905028.y"
+#line 982 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"declaration_list : ID LSQUARE CONST_INT RSQUARE");
@@ -2256,14 +2416,21 @@ yyreduce:
 			(yyvsp[-3].treeNode)->symbol->set_array_length((yyvsp[-1].treeNode)->symbol->getName()); 
 			(yyval.treeNode)->Nodes_param_list.push_back((yyvsp[-3].treeNode)->symbol);
 
+			//asm
+
+			if(symbol_table.curr->getID()==1)
+			{
+				global_vars.push_back((yyvsp[-3].treeNode)->symbol);
+			}
+
 
 
 		}
-#line 2263 "y.tab.c"
+#line 2430 "y.tab.c"
     break;
 
   case 30: /* statements: statement  */
-#line 851 "1905028.y"
+#line 1018 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statements : statement");
@@ -2279,11 +2446,11 @@ yyreduce:
 			cout<<"statements : statement "<<endl;
 			//change
 		}
-#line 2283 "y.tab.c"
+#line 2450 "y.tab.c"
     break;
 
   case 31: /* statements: statements statement  */
-#line 869 "1905028.y"
+#line 1036 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statements : statements statement");
@@ -2300,11 +2467,11 @@ yyreduce:
 			cout<<"statements : statements statement "<<endl;
 			//change
 		}
-#line 2304 "y.tab.c"
+#line 2471 "y.tab.c"
     break;
 
   case 32: /* statement: var_declaration  */
-#line 888 "1905028.y"
+#line 1055 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : var_declaration");
@@ -2320,11 +2487,11 @@ yyreduce:
 			cout<<"statement : var_declaration "<<endl;
 			//change
 		}
-#line 2324 "y.tab.c"
+#line 2491 "y.tab.c"
     break;
 
   case 33: /* statement: expression_statement  */
-#line 904 "1905028.y"
+#line 1071 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : expression_statement");
@@ -2340,11 +2507,11 @@ yyreduce:
 			cout<<"statement : expression_statement "<<endl;
 			//change
 		}
-#line 2344 "y.tab.c"
+#line 2511 "y.tab.c"
     break;
 
   case 34: /* statement: compound_statement  */
-#line 920 "1905028.y"
+#line 1087 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : compound_statement");
@@ -2360,11 +2527,11 @@ yyreduce:
 			cout<<"statement : compound_statement "<<endl;
 			//change
 		}
-#line 2364 "y.tab.c"
+#line 2531 "y.tab.c"
     break;
 
   case 35: /* statement: FOR LPAREN expression_statement expression_statement expression RPAREN statement  */
-#line 936 "1905028.y"
+#line 1103 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
@@ -2386,11 +2553,11 @@ yyreduce:
 			cout<<"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement "<<endl;
 			//change
 		}
-#line 2390 "y.tab.c"
+#line 2557 "y.tab.c"
     break;
 
   case 36: /* statement: IF LPAREN expression RPAREN statement  */
-#line 958 "1905028.y"
+#line 1125 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement");
@@ -2410,11 +2577,11 @@ yyreduce:
 			cout<<"statement : IF LPAREN expression RPAREN statement "<<endl;
 			//change
 		}
-#line 2414 "y.tab.c"
+#line 2581 "y.tab.c"
     break;
 
   case 37: /* statement: IF LPAREN expression RPAREN statement ELSE statement  */
-#line 978 "1905028.y"
+#line 1145 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement ELSE statement");
@@ -2436,11 +2603,11 @@ yyreduce:
 			cout<<"statement : IF LPAREN expression RPAREN statement ELSE statement "<<endl;
 			//change
 		}
-#line 2440 "y.tab.c"
+#line 2607 "y.tab.c"
     break;
 
   case 38: /* statement: WHILE LPAREN expression RPAREN statement  */
-#line 1000 "1905028.y"
+#line 1167 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : WHILE LPAREN expression RPAREN statement");
@@ -2461,11 +2628,11 @@ yyreduce:
 			//change
 
 		}
-#line 2465 "y.tab.c"
+#line 2632 "y.tab.c"
     break;
 
   case 39: /* statement: PRINTLN LPAREN ID RPAREN SEMICOLON  */
-#line 1021 "1905028.y"
+#line 1188 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
@@ -2494,11 +2661,11 @@ yyreduce:
 
 
 		}
-#line 2498 "y.tab.c"
+#line 2665 "y.tab.c"
     break;
 
   case 40: /* statement: RETURN expression SEMICOLON  */
-#line 1050 "1905028.y"
+#line 1217 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"statement : RETURN expression SEMICOLON");
@@ -2516,11 +2683,11 @@ yyreduce:
 			cout<<"statement : RETURN expression SEMICOLON "<<endl;
 			//change
 		}
-#line 2520 "y.tab.c"
+#line 2687 "y.tab.c"
     break;
 
   case 41: /* expression_statement: SEMICOLON  */
-#line 1070 "1905028.y"
+#line 1237 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"expression_statement : SEMICOLON");
@@ -2536,11 +2703,11 @@ yyreduce:
 			cout<<"expression_statement : SEMICOLON "<<endl;
 			//change
 		}
-#line 2540 "y.tab.c"
+#line 2707 "y.tab.c"
     break;
 
   case 42: /* expression_statement: expression SEMICOLON  */
-#line 1086 "1905028.y"
+#line 1253 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"expression_statement : expression SEMICOLON");
@@ -2559,11 +2726,11 @@ yyreduce:
 			//change
 
 		}
-#line 2563 "y.tab.c"
+#line 2730 "y.tab.c"
     break;
 
   case 43: /* variable: ID  */
-#line 1107 "1905028.y"
+#line 1274 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"variable : ID");
@@ -2598,11 +2765,11 @@ yyreduce:
 
 
 		}
-#line 2602 "y.tab.c"
+#line 2769 "y.tab.c"
     break;
 
   case 44: /* variable: ID LTHIRD expression RTHIRD  */
-#line 1142 "1905028.y"
+#line 1309 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"variable : ID LSQUARE expression RSQUARE");
@@ -2646,11 +2813,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=(yyvsp[-3].treeNode)->symbol;
 
 		}
-#line 2650 "y.tab.c"
+#line 2817 "y.tab.c"
     break;
 
   case 45: /* expression: logic_expression  */
-#line 1188 "1905028.y"
+#line 1355 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"expression : logic_expression");
@@ -2667,11 +2834,11 @@ yyreduce:
 			//change
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 		}
-#line 2671 "y.tab.c"
+#line 2838 "y.tab.c"
     break;
 
   case 46: /* expression: variable ASSIGNOP logic_expression  */
-#line 1205 "1905028.y"
+#line 1372 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"expression : variable ASSIGNOP logic_expression");
@@ -2741,11 +2908,11 @@ yyreduce:
 
 
 		}
-#line 2745 "y.tab.c"
+#line 2912 "y.tab.c"
     break;
 
   case 47: /* logic_expression: rel_expression  */
-#line 1277 "1905028.y"
+#line 1444 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"logic_expression : rel_expression");
@@ -2762,11 +2929,11 @@ yyreduce:
 			//change
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 		}
-#line 2766 "y.tab.c"
+#line 2933 "y.tab.c"
     break;
 
   case 48: /* logic_expression: rel_expression LOGICOP rel_expression  */
-#line 1294 "1905028.y"
+#line 1461 "1905028.y"
                                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"logic_expression : rel_expression LOGICOP rel_expression");
@@ -2790,11 +2957,11 @@ yyreduce:
 
 
 		}
-#line 2794 "y.tab.c"
+#line 2961 "y.tab.c"
     break;
 
   case 49: /* rel_expression: simple_expression  */
-#line 1320 "1905028.y"
+#line 1487 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"rel_expression : simple_expression");
@@ -2811,11 +2978,11 @@ yyreduce:
 			//change
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 		}
-#line 2815 "y.tab.c"
+#line 2982 "y.tab.c"
     break;
 
   case 50: /* rel_expression: simple_expression RELOP simple_expression  */
-#line 1337 "1905028.y"
+#line 1504 "1905028.y"
                                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"rel_expression : simple_expression RELOP simple_expression");
@@ -2838,11 +3005,11 @@ yyreduce:
 
 
 		}
-#line 2842 "y.tab.c"
+#line 3009 "y.tab.c"
     break;
 
   case 51: /* simple_expression: term  */
-#line 1362 "1905028.y"
+#line 1529 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"simple_expression : term");
@@ -2861,11 +3028,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 
 		}
-#line 2865 "y.tab.c"
+#line 3032 "y.tab.c"
     break;
 
   case 52: /* simple_expression: simple_expression ADDOP term  */
-#line 1381 "1905028.y"
+#line 1548 "1905028.y"
                                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"simple_expression : simple_expression ADDOP term");
@@ -2888,11 +3055,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=new Symbol_Info(code_text,"simple_expression",Type_Cast_Auto((yyvsp[-2].treeNode)->symbol,(yyvsp[0].treeNode)->symbol));
 
 		}
-#line 2892 "y.tab.c"
+#line 3059 "y.tab.c"
     break;
 
   case 53: /* term: unary_expression  */
-#line 1406 "1905028.y"
+#line 1573 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"term : unary_expression");
@@ -2909,11 +3076,11 @@ yyreduce:
 			//change
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 		}
-#line 2913 "y.tab.c"
+#line 3080 "y.tab.c"
     break;
 
   case 54: /* term: term MULOP unary_expression  */
-#line 1423 "1905028.y"
+#line 1590 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"term : term MULOP unary_expression");
@@ -2954,11 +3121,11 @@ yyreduce:
 
 
 		}
-#line 2958 "y.tab.c"
+#line 3125 "y.tab.c"
     break;
 
   case 55: /* unary_expression: ADDOP unary_expression  */
-#line 1466 "1905028.y"
+#line 1633 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"unary_expression : ADDOP unary_expression");
@@ -2980,11 +3147,11 @@ yyreduce:
 
 
 		}
-#line 2984 "y.tab.c"
+#line 3151 "y.tab.c"
     break;
 
   case 56: /* unary_expression: NOT unary_expression  */
-#line 1488 "1905028.y"
+#line 1655 "1905028.y"
                                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"unary_expression : NOT unary_expression");
@@ -3006,11 +3173,11 @@ yyreduce:
 
 
 		}
-#line 3010 "y.tab.c"
+#line 3177 "y.tab.c"
     break;
 
   case 57: /* unary_expression: factor  */
-#line 1510 "1905028.y"
+#line 1677 "1905028.y"
                                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"unary_expression : factor");
@@ -3028,11 +3195,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 
 		}
-#line 3032 "y.tab.c"
+#line 3199 "y.tab.c"
     break;
 
   case 58: /* factor: variable  */
-#line 1530 "1905028.y"
+#line 1697 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : variable");
@@ -3050,11 +3217,11 @@ yyreduce:
 			//change
 			(yyval.treeNode)->symbol=(yyvsp[0].treeNode)->symbol;
 		}
-#line 3054 "y.tab.c"
+#line 3221 "y.tab.c"
     break;
 
   case 59: /* factor: ID LPAREN argument_list RPAREN  */
-#line 1548 "1905028.y"
+#line 1715 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : ID LPAREN argument_list RPAREN");
@@ -3082,11 +3249,11 @@ yyreduce:
 
 
 		}
-#line 3086 "y.tab.c"
+#line 3253 "y.tab.c"
     break;
 
   case 60: /* factor: LPAREN expression RPAREN  */
-#line 1576 "1905028.y"
+#line 1743 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : LPAREN expression RPAREN");
@@ -3108,11 +3275,11 @@ yyreduce:
 
 
 		}
-#line 3112 "y.tab.c"
+#line 3279 "y.tab.c"
     break;
 
   case 61: /* factor: CONST_INT  */
-#line 1598 "1905028.y"
+#line 1765 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : CONST_INT");
@@ -3130,11 +3297,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=new Symbol_Info((yyvsp[0].treeNode)->symbol->getName(),"factor","int");
 
 		}
-#line 3134 "y.tab.c"
+#line 3301 "y.tab.c"
     break;
 
   case 62: /* factor: CONST_FLOAT  */
-#line 1616 "1905028.y"
+#line 1783 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : CONST_FLOAT");
@@ -3152,11 +3319,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=new Symbol_Info((yyvsp[0].treeNode)->symbol->getName(),"factor","float");
 
 		}
-#line 3156 "y.tab.c"
+#line 3323 "y.tab.c"
     break;
 
   case 63: /* factor: variable INCOP  */
-#line 1634 "1905028.y"
+#line 1801 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : variable INCOP");
@@ -3177,11 +3344,11 @@ yyreduce:
 
 
 		}
-#line 3181 "y.tab.c"
+#line 3348 "y.tab.c"
     break;
 
   case 64: /* factor: variable DECOP  */
-#line 1655 "1905028.y"
+#line 1822 "1905028.y"
                         {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"factor : variable DECOP");
@@ -3200,11 +3367,11 @@ yyreduce:
 			(yyval.treeNode)->symbol=new Symbol_Info((yyvsp[-1].treeNode)->symbol->getName()+"--","factor",(yyvsp[-1].treeNode)->symbol->get_data_type());
 
 		}
-#line 3204 "y.tab.c"
+#line 3371 "y.tab.c"
     break;
 
   case 65: /* argument_list: arguments  */
-#line 1676 "1905028.y"
+#line 1843 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"argument_list : arguments");
@@ -3222,11 +3389,11 @@ yyreduce:
 			//change
 			(yyval.treeNode)->Nodes_param_list=(yyvsp[0].treeNode)->Nodes_param_list;
 		}
-#line 3226 "y.tab.c"
+#line 3393 "y.tab.c"
     break;
 
   case 66: /* argument_list: %empty  */
-#line 1694 "1905028.y"
+#line 1861 "1905028.y"
                                         {
 			
 			// $$=new TreeNode(nullptr,"argument_list :");
@@ -3241,11 +3408,11 @@ yyreduce:
 
 			// cout<<"argument_list :  "<<endl;
 		}
-#line 3245 "y.tab.c"
+#line 3412 "y.tab.c"
     break;
 
   case 67: /* arguments: arguments COMMA logic_expression  */
-#line 1711 "1905028.y"
+#line 1878 "1905028.y"
                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"arguments : arguments COMMA logic_expression");
@@ -3266,11 +3433,11 @@ yyreduce:
 			(yyval.treeNode)->Nodes_param_list.push_back((yyvsp[0].treeNode)->symbol);
 
 		}
-#line 3270 "y.tab.c"
+#line 3437 "y.tab.c"
     break;
 
   case 68: /* arguments: logic_expression  */
-#line 1732 "1905028.y"
+#line 1899 "1905028.y"
                                 {
 			
 			(yyval.treeNode)=new TreeNode(nullptr,"arguments : logic_expression");
@@ -3289,11 +3456,11 @@ yyreduce:
 			(yyval.treeNode)->Nodes_param_list=(yyvsp[0].treeNode)->Nodes_param_list;
 			(yyval.treeNode)->Nodes_param_list.push_back((yyvsp[0].treeNode)->symbol);
 		}
-#line 3293 "y.tab.c"
+#line 3460 "y.tab.c"
     break;
 
 
-#line 3297 "y.tab.c"
+#line 3464 "y.tab.c"
 
       default: break;
     }
@@ -3486,7 +3653,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1753 "1905028.y"
+#line 1920 "1905028.y"
 
 int main(int argc,char *argv[])
 {

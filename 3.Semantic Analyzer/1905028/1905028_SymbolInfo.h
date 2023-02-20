@@ -22,7 +22,7 @@ private:
 
 
 public:
-
+    int stkoffset;
     Symbol_Info(string name, string type)
     {
         this->name=name;

@@ -6,12 +6,11 @@ using namespace std;
 
 class Symbol_Table
 {
-private:
+public:
     Scope_Table *curr;
     int Scope_num_buckets;
     int size=1;
 
-public:
 
     Symbol_Table(int len)
     {
@@ -115,6 +114,8 @@ public:
 
         }
     }
+
+
 
 
 };
