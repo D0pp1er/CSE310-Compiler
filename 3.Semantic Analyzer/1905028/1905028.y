@@ -265,12 +265,65 @@ void Print_output_func()
 	assembler<<"\tpop dx\n\tpop cx\n\tpop bx\n\tpop ax\n\tret\n\tnegate:\n\tpush ax\n\tmov ah,2\n\tmov dl,'-'\n\tint 21h\n\tpop ax\n\tneg ax\n\tjmp print\nprint_output endp\n";
 }
 
+void Asm_declaration_list(TreeNode* treeNode)
+{
+	if(treeNode->childlist.size()==1)
+	{
+		stkoffset=stkoffset+2;
+		treeNode->childlist[0]->symbol->stkoffset=stkoffset;
+		symbol_table.Insert(treeNode->childlist[0]->symbol);
+		assembler<<"\tSUB SP, 2\n";
+	}
 
+	else if(treeNode->childlist.size()==4)
+	{
+		stkoffset=stkoffset+2*stoi(treeNode->childlist[0]->symbol->get_array_length());
+		treeNode->childlist[0]->symbol->stkoffset=stkoffset;
+		symbol_table.Insert(treeNode->childlist[0]->symbol);
+		assembler<<"\tSUB SP, "<<2*stoi(treeNode->childlist[0]->symbol->get_array_length())<<endl;
+
+	}
+
+	else if(treeNode->childlist.size()==3)
+	{
+		stkoffset=stkoffset+2;
+		treeNode->childlist[2]->symbol->stkoffset=stkoffset;
+		symbol_table.Insert(treeNode->childlist[2]->symbol);
+		assembler<<"\tSUB SP, 2\n";
+		Asm_declaration_list(treeNode->childlist[0]);
+	}
+
+	else if(treeNode->childlist.size()==6)
+	{
+		stkoffset=stkoffset+2*stoi(treeNode->childlist[2]->symbol->get_array_length());
+		treeNode->childlist[2]->symbol->stkoffset=stkoffset;
+		symbol_table.Insert(treeNode->childlist[2]->symbol);
+		assembler<<"\tSUB SP, "<<2*stoi(treeNode->childlist[2]->symbol->get_array_length())<<endl;
+		Asm_declaration_list(treeNode->childlist[0]);
+	}
+}
+
+
+
+void Asm_var_declaration(TreeNode* treeNode)
+{
+	assembler<<"\t\t;variable declaration\n";
+	treeNode=treeNode->childlist[1];
+	Asm_declaration_list(treeNode);
+
+
+}
 
 void Asm_statement(TreeNode* treeNode)
 {
 	//here
+	if(treeNode->symbol->getName()=="var_declaration")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		Asm_var_declaration(treeNode->childlist[0]);
+	}
 
+	
 
 
 
@@ -1103,6 +1156,8 @@ statement : var_declaration
 			
 			$$=new TreeNode(nullptr,"statement : var_declaration");
 
+			$$->symbol=new Symbol_Info("var_declaration","rule");
+
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
@@ -1118,6 +1173,8 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : expression_statement");
+			$$->symbol=new Symbol_Info("expression_statement","rule");
+
 
 			$$->is_Terminal = false;
 
@@ -1134,6 +1191,8 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : compound_statement");
+			$$->symbol=new Symbol_Info("compound_statement","rule");
+
 
 			$$->is_Terminal = false;
 
@@ -1150,7 +1209,7 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
-
+			$$->symbol=new Symbol_Info("FOR LPAREN expression_statement expression_statement expression RPAREN statement","rule");
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
@@ -1172,6 +1231,7 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement");
+			$$->symbol=new Symbol_Info("IF LPAREN expression RPAREN statement","rule");
 
 			$$->is_Terminal = false;
 
@@ -1192,6 +1252,7 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : IF LPAREN expression RPAREN statement ELSE statement");
+			$$->symbol=new Symbol_Info("IF LPAREN expression RPAREN statement ELSE statement","rule");
 
 			$$->is_Terminal = false;
 
@@ -1214,6 +1275,7 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : WHILE LPAREN expression RPAREN statement");
+			$$->symbol=new Symbol_Info("WHILE LPAREN expression RPAREN statement","rule");
 
 			$$->is_Terminal = false;
 
@@ -1235,6 +1297,7 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
+			$$->symbol=new Symbol_Info("PRINTLN LPAREN ID RPAREN SEMICOLON","rule");
 
 			$$->is_Terminal = false;
 
@@ -1264,6 +1327,7 @@ statement : var_declaration
 	  		{
 			
 			$$=new TreeNode(nullptr,"statement : RETURN expression SEMICOLON");
+			$$->symbol=new Symbol_Info("RETURN expression SEMICOLON","rule");
 
 			$$->is_Terminal = false;
 
