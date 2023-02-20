@@ -15,6 +15,7 @@ extern int yylineno;
 
 int error_count;
 int stkoffset=0;
+bool NegateFlag=false;
 
 // ofstream cout("1905028_log_smaple.txt");
 ofstream errorout("1905028_error.txt");
@@ -314,6 +315,257 @@ void Asm_var_declaration(TreeNode* treeNode)
 
 }
 
+
+void Asm_factor(TreeNode* treeNode)
+{
+	//here
+	
+}
+
+
+
+void Asm_unary_exprssn(TreeNode* treeNode)
+{
+	
+
+	if(treeNode->symbol->getName()=="ADDOP unary_expression")
+	{
+		if(treeNode->childlist[0]->symbol->getName()=="-")NegateFlag=true;
+		Asm_unary_exprssn(treeNode->childlist[1]);
+	}
+
+	else if(treeNode->symbol->getName()=="NOT unary_expression")
+	{
+		Asm_unary_exprssn(treeNode->childlist[1]);
+		string Lbl_1="L"+to_string(++label_num);
+		string Lbl_2="L"+to_string(++label_num);
+		string Lbl_3="L"+to_string(++label_num);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX, 0\n";
+		assembler<<"\tJE "<<Lbl_2<<endl;
+		assembler<<"\tJMP "<<Lbl_1<<endl;
+		assembler<<Lbl_2<<":\n";
+		assembler<<"\tMOV AX, 1\n";
+		assembler<<"\tPUSH AX\n";
+		assembler<<"\tJMP "<<Lbl_3<<endl;
+		assembler<<Lbl_1<<":\n";
+		assembler<<"\tMOV AX, 0\n";
+		assembler<<"\tPUSH AX\n";
+		assembler<<Lbl_3<<":\n";
+
+	}
+	else if(treeNode->childlist.size()==1)
+	{
+		Asm_factor(treeNode->childlist[0]);
+	}
+}
+
+
+
+void Asm_term(TreeNode* treeNode)
+{
+
+	if(treeNode->childlist.size()==3)
+	{
+		Asm_term(treeNode->childlist[0]);
+		Asm_unary_exprssn(treeNode->childlist[2]);
+		assembler<<"\tPOP CX\n";
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCWD\n";
+
+		string sign=treeNode->childlist[1]->symbol->getName();
+		if(sign=="%")
+		{
+			assembler<<"\tDIV CX\n\tPUSH DX\n";
+		}
+		else if(sign=="/") assembler<<"\tDIV CX\n\tPUSH AX\n";
+		else if(sign=="*") assembler<<"\tMUL CX\n\tPUSH AX\n";
+
+	}
+	else Asm_unary_exprssn(treeNode->childlist[0]);
+}
+
+
+void Asm_simple_exprssn(TreeNode* treeNode)
+{
+	if(treeNode->childlist.size()==3)
+	{
+
+		Asm_simple_exprssn(treeNode->childlist[0]);
+		Asm_term(treeNode->childlist[2]);
+		assembler<<"\tPOP DX\n";
+		assembler<<"\tPOP AX\n";
+		if(treeNode->childlist[1]->symbol->getName()=="-")assembler<<"\tSUB AX, DX\n";
+		else assembler<<"\tADD AX, DX\n";
+		assembler<<"\tPUSH AX\n";
+	}
+	else
+	{
+		Asm_term(treeNode->childlist[0]);
+	}
+}
+
+
+
+
+
+void Asm_rel_exprssn(TreeNode* treeNode)
+{
+	
+
+	if(treeNode->childlist.size()==3)
+	{	
+		Asm_simple_exprssn(treeNode->childlist[0]);
+		Asm_simple_exprssn(treeNode->childlist[2]);
+
+		string Lbl_1="L"+to_string(++label_num);
+		string Lbl_2="L"+to_string(++label_num);
+		string Lbl_3="L"+to_string(++label_num);
+
+		assembler<<"\tPOP DX\n";
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX,DX\n";
+
+		string sign=treeNode->childlist[1]->symbol->getName();
+		if(sign=="<")assembler<<"\tJL "<<Lbl_2<<endl;
+		else if(sign=="<=")assembler<<"\tJLE "<<Lbl_2<<endl;
+		else if(sign==">")assembler<<"\tJG "<<Lbl_2<<endl;
+		else if(sign==">=")assembler<<"\tJGE "<<Lbl_2<<endl;
+		else if(sign=="==")assembler<<"\tJE "<<Lbl_2<<endl;
+		else if(sign=="!=")assembler<<"\tJNE "<<Lbl_2<<endl;
+
+		assembler<<"\tJMP "<<Lbl_1<<endl;
+		assembler<<Lbl_2<<":\n";
+		assembler<<"\tMOV AX, 1\n";
+		assembler<<"\tPUSH AX\n";
+		assembler<<"\tJMP "<<Lbl_3<<endl;
+		assembler<<Lbl_1<<":\n";
+		assembler<<"\tMOV AX, 0\n";
+		assembler<<"\tPUSH AX\n";
+		assembler<<Lbl_3<<":\n";
+	}
+	else
+	{
+		Asm_simple_exprssn(treeNode->childlist[0]);
+	}
+
+
+}
+
+
+void Asm_logic_exprssn(TreeNode* treeNode)
+{
+	
+	if(treeNode->childlist.size==3)
+	{
+		Asm_rel_exprssn(treeNode->childlist[0]);
+		string Lbl_1="L"+to_string(++label_num);
+		string Lbl_2="L"+to_string(++label_num);
+		string Lbl_3="L"+to_string(++label_num);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX, 0\n";
+		if(treeNode->childlist[1]->symbol->getName()=="||")
+		{
+			assembler<<"\tJNE "<<Lbl_2<<endl;
+			Asm_rel_exprssn(treeNode->childlist[2]);
+			assembler<<"\tPOP AX\n";
+			assembler<<"\tCMP AX,0\n";
+			assembler<<"\tJE "<<Lbl_1<<endl;
+			assembler<<Lbl_2<<":\n";
+			assembler<<"\tMOV AX, 1\n";
+			assembler<<"\tPUSH AX\n";
+			assembler<<"\tJMP "<<Lbl_3<<endl;
+			assembler<<Lbl_1<<":\n";
+			assembler<<"\tMOV AX, 0\n";
+			assembler<<"\tPUSH AX\n";
+			assembler<<Lbl_3<<":\n";
+		}
+
+		else if(treeNode->childlist[1]->symbol->getName()=="&&")
+		{
+			assembler<<"\tJE "<<Lbl_1<<endl;
+			Asm_rel_exprssn(treeNode->childlist[2]);
+			assembler<<"\tPOP AX\n";
+			assembler<<"\tCMP AX,0\n";
+			assembler<<"\tJNE "<<Lbl_2<<endl;
+			assembler<<Lbl_1<<":\n";
+			assembler<<"\tMOV AX, 0\n";
+			assembler<<"\tPUSH AX\n";
+			assembler<<"\tJMP "<<Lbl_3<<endl;
+			assembler<<Lbl_2<<":\n";
+			assembler<<"\tMOV AX, 1\n";
+			assembler<<"\tPUSH AX\n";
+			assembler<<Lbl_3<<":\n";
+
+		}
+
+	}
+	else
+	{
+		Asm_rel_exprssn(treeNode->childlist[0]);
+	}
+}
+
+void Asm_exprssn(TreeNode* treeNode)
+{
+	
+	if(treeNode->childlist.size()==3)
+	{
+		string name="";
+		if(treeNode->childlist[0]->childlist.size()==1)
+		{
+			string temp=(treeNode->childlist[0]->childlist[0]->symbol->getName());
+			Symbol_Info* sym=symbol_table.Lookup(temp);
+			if(sym->stkoffset==0)name=sym->getName();
+			else if(sym->stkoffset>0)name="[BP-"+to_string(sym->stkoffset)+"]";
+			else if(sym->stkoffset<0)name="[BP+"+to_string(sym->stkoffset*(-1))+"]";
+		}
+
+		else
+		{
+			string temp=treeNode->childlist[0]->childlist[0]->symbol->getName();
+			Symbol_Info* sym = symbol_table.Lookup(temp);
+			Asm_exprssn(treeNode->childlist[0]->childlist[2]);
+			assembler<<"\tPOP SI\n";
+			assembler<<"\tSHL SI,1\n";
+			if(sym->stkoffset==0)name=sym->getName()+"[SI]";
+			else if(sym->stkoffset>0)
+			{
+				assembler<<"\tNEG SI\n";
+				assembler<<"\tADD SI, "<<sym->stkoffset<<endl;
+				name="BP[SI]";
+			}
+
+			else if(sym->stkoffset<0)
+			{
+				assembler<<"\tSUB SI, "<<to_string(sym->stkoffset)<<endl;
+				name="BP[SI]";
+			}
+		}
+
+		Asm_logic_exprssn(treeNode->childlist[2]);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tMOV "<<name<<" , AX\n";
+		assembler<<"\tPUSH AX\n";
+	}
+
+	else
+	{
+		Asm_logic_exprssn(treeNode->childlist[0]);
+	}
+}
+
+void Asm_exprssn_statement(TreeNode* treeNode)
+{
+	if(treeNode->childlist.size()==2)
+	{
+		Asm_exprssn(treeNode->childlist[0]);
+		assembler<<"\tPOP AX\n";
+	}
+}
+
+
+
 void Asm_statement(TreeNode* treeNode)
 {
 	//here
@@ -323,7 +575,12 @@ void Asm_statement(TreeNode* treeNode)
 		Asm_var_declaration(treeNode->childlist[0]);
 	}
 
-	
+	else if( treeNode->symbol->getName()=="expression_statement")
+	{
+		assembler<<"\t\t; Line no "<<treeNode->first_line<<endl;
+		Asm_exprssn_statement(treeNode->childlist[0]);
+	}
+	//incomplete
 
 
 
@@ -393,7 +650,7 @@ void Asm_func_def(TreeNode* treeNode)
 		function_parameter_list=treeNode->childlist[3]->Nodes_param_list;
 		for(int i=0;i<function_parameter_list.size();i++)
 		{
-			stkoffset=-2;
+			stkoffset-=2;
 			function_parameter_list[i]->stkoffset=stkoffset;
 		}
 	}
@@ -1744,7 +2001,7 @@ unary_expression : ADDOP unary_expression
 		{
 			
 			$$=new TreeNode(nullptr,"unary_expression : ADDOP unary_expression");
-
+			$$->symbol=new Symbol_Info("ADDOP unary_expression","rule");
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
@@ -1766,6 +2023,7 @@ unary_expression : ADDOP unary_expression
 		 		{
 			
 			$$=new TreeNode(nullptr,"unary_expression : NOT unary_expression");
+			$$->symbol=new Symbol_Info("NOT unary_expression","rule");
 
 			$$->is_Terminal = false;
 
