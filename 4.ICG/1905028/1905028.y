@@ -435,6 +435,7 @@ void Asm_factor(TreeNode* treeNode)
 			{
 				assembler<<"\tNEG SI\n";
 				assembler<<"\tADD SI, "<<sym->stkoffset<<endl;
+				assembler<<"\tNEG SI\n";
 				name="BP[SI]";
 			}
 			else
@@ -482,6 +483,7 @@ void Asm_factor(TreeNode* treeNode)
 			{
 				assembler<<"\tNEG SI\n";
 				assembler<<"\tADD SI, "<<sym->stkoffset<<endl;
+				assembler<<"\tNEG SI\n";
 				name="BP[SI]";
 			}
 			else
@@ -570,10 +572,10 @@ void Asm_term(TreeNode* treeNode)
 		string sign=treeNode->childlist[1]->symbol->getName();
 		if(sign=="%")
 		{
-			assembler<<"\tDIV CX\n\tPUSH DX\n";
+			assembler<<"\tIDIV CX\n\tPUSH DX\n";
 		}
-		else if(sign=="/") assembler<<"\tDIV CX\n\tPUSH AX\n";
-		else if(sign=="*") assembler<<"\tMUL CX\n\tPUSH AX\n";
+		else if(sign=="/") assembler<<"\tIDIV CX\n\tPUSH AX\n";
+		else if(sign=="*") assembler<<"\tIMUL CX\n\tPUSH AX\n";
 
 	}
 	else {
@@ -707,7 +709,8 @@ void Asm_exprssn(TreeNode* treeNode)
 {
 	
 	if(treeNode->childlist.size()==3)
-	{
+	{	
+		Asm_logic_exprssn(treeNode->childlist[2]);
 		string name="";
 		if(treeNode->childlist[0]->childlist.size()==1)
 		{
@@ -730,6 +733,7 @@ void Asm_exprssn(TreeNode* treeNode)
 			{
 				assembler<<"\tNEG SI\n";
 				assembler<<"\tADD SI, "<<sym->stkoffset<<endl;
+				assembler<<"\tNEG SI\n";
 				name="BP[SI]";
 			}
 
@@ -740,7 +744,7 @@ void Asm_exprssn(TreeNode* treeNode)
 			}
 		}
 
-		Asm_logic_exprssn(treeNode->childlist[2]);
+		// Asm_logic_exprssn(treeNode->childlist[2]);
 		assembler<<"\tPOP AX\n";
 		assembler<<"\tMOV "<<name<<" , AX\n";
 		assembler<<"\tPUSH AX\n";
@@ -1049,16 +1053,31 @@ void Assemble(TreeNode* sym)
 	for(int i=0;i<codes.size();i++)
 	{
 		if((i+1)>=codes.size()){}
-		else if(codes[i].substr(1,3)=="ADD" && codes[i][codes[i].size()-1]=='0')
-		{
-			code_optimizer<<"\t\t;removed add 0\n";
-			continue;
+		else if(codes[i].substr(1,3)=="ADD" && codes[i].substr(1,3)=="SUB")
+		{	
+			
+			string l1=codes[i].substr(4);
+			int j=l1.find(",");
+			if(l1.substr(j+2)=="0")
+			{
+				code_optimizer<<"\t\t;removed add 0\n";
+				continue;
+			}
+			
 		}
 
-		else if(codes[i].substr(1,3)=="MUL" && codes[i][codes[i].size()-1]=='1')
+		else if(codes[i].substr(1,3)=="MUL")
 		{
-			code_optimizer<<"\t\t;removed mul 1\n";
-			continue;
+			string l1=codes[i].substr(4);
+			int j=l1.find(",");
+			//here
+			if(l1.substr(j+2)=="1")
+			{
+				code_optimizer<<"\t\t;removed mul 1\n";
+				continue;
+			}
+			
+			
 		}
 		else if(codes[i].substr(1,4)=="PUSH" && codes[i+1].substr(1,3)=="POP")
 		{

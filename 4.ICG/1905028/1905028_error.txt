@@ -1,3 +1,43 @@
-Line# 15: Type mismatch for argument 1 of 'f'
-Line# 33: Type mismatch for argument 1 of 'g'
-Line# 33: Type mismatch for argument 2 of 'g'
+Line# 5: Array subscript is not an integer
+Line# 5: Array subscript is not an integer
+Line# 7: Array subscript is not an integer
+Line# 8: Array subscript is not an integer
+Line# 10: Array subscript is not an integer
+Line# 10: Type mismatch for argument 1 of 'fibonacci'
+Line# 10: Type mismatch for argument 1 of 'fibonacci'
+Line# 11: Array subscript is not an integer
+Line# 17: Type mismatch for argument 1 of 'factorial'
+Line# 23: Type mismatch for argument 1 of 'power'
+Line# 23: Type mismatch for argument 2 of 'power'
+Line# 35: Array subscript is not an integer
+Line# 36: Array subscript is not an integer
+Line# 37: Array subscript is not an integer
+Line# 37: Array subscript is not an integer
+Line# 37: Array subscript is not an integer
+Line# 38: Array subscript is not an integer
+Line# 42: Array subscript is not an integer
+Line# 42: Array subscript is not an integer
+Line# 52: Type mismatch for argument 1 of 'mergeSort'
+Line# 52: Type mismatch for argument 2 of 'mergeSort'
+Line# 53: Type mismatch for argument 1 of 'mergeSort'
+Line# 53: Type mismatch for argument 2 of 'mergeSort'
+Line# 54: Type mismatch for argument 1 of 'merge1'
+Line# 54: Type mismatch for argument 2 of 'merge1'
+Line# 54: Type mismatch for argument 3 of 'merge1'
+Line# 68: Array subscript is not an integer
+Line# 69: Array subscript is not an integer
+Line# 70: Array subscript is not an integer
+Line# 70: Array subscript is not an integer
+Line# 70: Array subscript is not an integer
+Line# 73: Array subscript is not an integer
+Line# 85: Type mismatch for argument 1 of 'power'
+Line# 85: Type mismatch for argument 2 of 'power'
+Line# 87: Type mismatch for argument 1 of 'factorial'
+Line# 92: Array subscript is not an integer
+Line# 96: Array subscript is not an integer
+Line# 103: Type mismatch for argument 1 of 'mergeSort'
+Line# 103: Type mismatch for argument 2 of 'mergeSort'
+Line# 109: Array subscript is not an integer
+Line# 115: Array subscript is not an integer
+Line# 121: Type mismatch for argument 1 of 'fibonacci'
+Line# 124: Array subscript is not an integer
