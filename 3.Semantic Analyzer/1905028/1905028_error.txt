@@ -1,0 +1,3 @@
+Line# 15: Type mismatch for argument 1 of 'f'
+Line# 33: Type mismatch for argument 1 of 'g'
+Line# 33: Type mismatch for argument 2 of 'g'

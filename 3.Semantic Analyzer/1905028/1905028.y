@@ -24,7 +24,7 @@ ofstream assembler("1905028_code.asm");
 vector<Symbol_Info*> function_parameter_list;
 vector<Symbol_Info*> global_vars;
 int  parameter_list_line_no;
-
+int func_param_list_length=0;
 
 Symbol_Table symbol_table(11);
 int label_num=0;
@@ -821,7 +821,7 @@ void Asm_statement(TreeNode* treeNode)
 		Asm_statement(treeNode->childlist[4]);
 		assembler<<"L"<<Lbl_1<<":\n";
 	}
-	//here
+	
 	else if(treeNode->symbol->getName()=="IF LPAREN expression RPAREN statement ELSE statement")
 	{
 		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
@@ -842,7 +842,40 @@ void Asm_statement(TreeNode* treeNode)
 		assembler<<"L"<<Lbl_3<<":\n";
 
 	}
+	//here
+	else if(treeNode->symbol->getName()=="FOR LPAREN expression_statement expression_statement expression RPAREN statement")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		assembler<<"\t\t;for loop initialize\n";
+		Asm_exprssn_statement(treeNode->childlist[2]);
+		int Lbl_1=++label_num;
+		int Lbl_2=++label_num;
+		assembler<<"L"<<Lbl_1<<":\t\t;loop starts here\n";
+		Asm_exprssn_statement(treeNode->childlist[3]);
+		assembler<<"\tCMP AX, 0\n";
+		assembler<<"\tJE L"<<Lbl_2<<endl;
+		Asm_statement(treeNode->childlist[6]);
+		Asm_exprssn(treeNode->childlist[4]);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tJMP L"<<Lbl_1<<endl;
+		assembler<<"L"<<Lbl_2<<":\n";
 
+	}
+
+	else if(treeNode->symbol->getName()=="WHILE LPAREN expression RPAREN statement")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		int Lbl_1=++label_num;
+		int Lbl_2=++label_num;
+		assembler<<"L"<<Lbl_1<<":\t\t;while loop initialize\n";
+		Asm_exprssn(treeNode->childlist[2]);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX, 0\n";
+		assembler<<"\tJE L"<<Lbl_2<<endl;
+		Asm_statement(treeNode->childlist[4]);
+		assembler<<"\tJMP L"<<Lbl_1<<endl;
+		assembler<<"L"<<Lbl_2<<":\n";
+	}
 
 
 }
@@ -915,6 +948,7 @@ void Asm_func_def(TreeNode* treeNode)
 	}
 
 	stkoffset=0;
+	func_param_list_length=function_parameter_list.size();
 	assembler<<"\t\t; pushing bp\n";
 	assembler<<"\tPUSH BP\n";
 	assembler<<"\tMOV BP , SP\n";
@@ -939,17 +973,19 @@ void Asm_func_def(TreeNode* treeNode)
 	}
 	else
 	{
-		if(function_parameter_list.size()>0)
+		if(func_param_list_length>0)
 		{
-			assembler<<"\t RET "<<2*function_parameter_list.size()<<endl;
+			assembler<<"\tRET "<<2*func_param_list_length<<endl;
 
 		}
 		else
 		{
 			assembler<<"\tRET\n";
 		}
+		func_param_list_length=0;
 	}
 	assembler<<funcName<<" ENDP\n";
+	stkoffset=0;
 
 }
 
