@@ -353,3 +353,40 @@ start : program
 	2--> <main,FUNCTION,int,,FUNCTION_DEFINITION,0> 
 	7--> <i,ID,int,,VARIABLE,0> 
 	8--> <j,ID,int,,VARIABLE,0> 
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression
+------4433 inside term
+-----------4422 negate is on
+---------4444 found unary expression
+------4433 inside term
+---------4444 found unary expression

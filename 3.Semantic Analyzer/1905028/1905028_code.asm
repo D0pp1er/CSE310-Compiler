@@ -105,16 +105,16 @@ main PROC
 	POP DX
 	POP AX
 	CMP AX,DX
-	JLE L2
-	JMP L1
-L2:
+	JLE L3
+	JMP L2
+L3:
 	MOV AX, 1
 	PUSH AX
-	JMP L3
-L1:
+	JMP L4
+L2:
 	MOV AX, 0
 	PUSH AX
-L3:
+L4:
 	POP AX
 	MOV [BP-6] , AX
 	PUSH AX
@@ -132,16 +132,16 @@ L3:
 	POP DX
 	POP AX
 	CMP AX,DX
-	JNE L5
-	JMP L4
-L5:
+	JNE L6
+	JMP L5
+L6:
 	MOV AX, 1
 	PUSH AX
-	JMP L6
-L4:
+	JMP L7
+L5:
 	MOV AX, 0
 	PUSH AX
-L6:
+L7:
 	POP AX
 	MOV [BP-4] , AX
 	PUSH AX
@@ -156,20 +156,20 @@ L6:
 	PUSH AX
 	POP AX
 	CMP AX, 0
-	JNE L8
+	JNE L9
 	MOV AX, [BP-4]
 	PUSH AX
 	POP AX
 	CMP AX,0
-	JE L7
-L8:
+	JE L8
+L9:
 	MOV AX, 1
 	PUSH AX
-	JMP L9
-L7:
+	JMP L10
+L8:
 	MOV AX, 0
 	PUSH AX
-L9:
+L10:
 	POP AX
 	MOV [BP-2] , AX
 	PUSH AX
@@ -184,20 +184,20 @@ L9:
 	PUSH AX
 	POP AX
 	CMP AX, 0
-	JE L10
+	JE L11
 	MOV AX, [BP-4]
 	PUSH AX
 	POP AX
 	CMP AX,0
-	JNE L11
-L10:
+	JNE L12
+L11:
 	MOV AX, 0
 	PUSH AX
-	JMP L12
-L11:
+	JMP L13
+L12:
 	MOV AX, 1
 	PUSH AX
-L12:
+L13:
 	POP AX
 	MOV [BP-2] , AX
 	PUSH AX
@@ -219,6 +219,9 @@ L12:
 	CALL print_output
 	CALL new_line
 		; Line no 31
+	MOV AX, [BP-2]
+	NEG AX
+	PUSH AX
 	POP AX
 	MOV [BP-12] , AX
 	PUSH AX
@@ -228,8 +231,13 @@ L12:
 	MOV AX, [BP-12]
 	CALL print_output
 	CALL new_line
-L13:		;returning from a function
-	ADD SP, 12
+		;Line no 37
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	JMP L1
+L1:		;returning from a function
+	MOV SP, BP
 	POP BP
 	MOV AX,4CH
 	INT 21H

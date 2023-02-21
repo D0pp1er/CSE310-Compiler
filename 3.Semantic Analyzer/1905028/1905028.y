@@ -28,6 +28,7 @@ int  parameter_list_line_no;
 
 Symbol_Table symbol_table(11);
 int label_num=0;
+int ret_label=0;
 
 
 //declaring the functions
@@ -488,6 +489,7 @@ void Asm_unary_exprssn(TreeNode* treeNode)
 	{
 		if(treeNode->childlist[0]->symbol->getName()=="-")NegateFlag=true;
 		Asm_unary_exprssn(treeNode->childlist[1]);
+		cout<<"-----------4422 negate is on\n";
 	}
 
 	else if(treeNode->symbol->getName()=="NOT unary_expression")
@@ -520,7 +522,7 @@ void Asm_unary_exprssn(TreeNode* treeNode)
 
 void Asm_term(TreeNode* treeNode)
 {
-
+	cout<<"------4433 inside term\n";
 	if(treeNode->childlist.size()==3)
 	{
 		Asm_term(treeNode->childlist[0]);
@@ -538,7 +540,10 @@ void Asm_term(TreeNode* treeNode)
 		else if(sign=="*") assembler<<"\tMUL CX\n\tPUSH AX\n";
 
 	}
-	else Asm_unary_exprssn(treeNode->childlist[0]);
+	else {
+		Asm_unary_exprssn(treeNode->childlist[0]);
+		cout<<"---------4444 found unary expression\n";
+	}
 }
 
 
@@ -724,7 +729,7 @@ void Asm_exprssn_statement(TreeNode* treeNode)
 
 void Asm_statement(TreeNode* treeNode)
 {
-	//here
+
 	if(treeNode->symbol->getName()=="var_declaration")
 	{
 		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
@@ -736,7 +741,7 @@ void Asm_statement(TreeNode* treeNode)
 		assembler<<"\t\t; Line no "<<treeNode->first_line<<endl;
 		Asm_exprssn_statement(treeNode->childlist[0]);
 	}
-	//incomplete
+	
 	else if(treeNode->symbol->getName()=="PRINTLN LPAREN ID RPAREN SEMICOLON")
 	{
 		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
@@ -752,8 +757,20 @@ void Asm_statement(TreeNode* treeNode)
 		assembler<<"\tCALL new_line\n";
 
 	}
+	
+	else if(treeNode->symbol->getName()=="compound_statement")
+	{
+		Asm_cmpnd_statement(treeNode->childlist[0]);
+	}
 
-
+	else if(treeNode->symbol->getName()=="RETURN expression SEMICOLON")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		Asm_exprssn(treeNode->childlist[1]);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tJMP L"<<ret_label<<endl;
+	}
+	//here
 
 
 
@@ -830,7 +847,7 @@ void Asm_func_def(TreeNode* treeNode)
 	assembler<<"\t\t; pushing bp\n";
 	assembler<<"\tPUSH BP\n";
 	assembler<<"\tMOV BP , SP\n";
-
+	ret_label=++label_num;
 	if(treeNode->childlist.size()==6)
 	{
 		Asm_cmpnd_statement(treeNode->childlist[5]);
@@ -839,8 +856,9 @@ void Asm_func_def(TreeNode* treeNode)
 		Asm_cmpnd_statement(treeNode->childlist[4]);
 	}
 
-	assembler<<"L"<<++label_num<<":\t\t;returning from a function\n";
-	assembler<<"\tADD SP, "<<stkoffset<<endl;
+	assembler<<"L"<<ret_label<<":\t\t;returning from a function\n";
+	// assembler<<"\tADD SP, "<<stkoffset<<endl;
+	assembler<<"\tMOV SP, BP\n";
 	assembler<<"\tPOP BP\n";
 	if(funcName=="main")
 	{
@@ -2172,7 +2190,7 @@ unary_expression : ADDOP unary_expression
 		{
 			
 			$$=new TreeNode(nullptr,"unary_expression : ADDOP unary_expression");
-			$$->symbol=new Symbol_Info("ADDOP unary_expression","rule");
+			// $$->symbol=new Symbol_Info("ADDOP unary_expression","rule");
 			$$->is_Terminal = false;
 
 			$$->childlist.push_back($1);
@@ -2184,7 +2202,7 @@ unary_expression : ADDOP unary_expression
 
 			cout<<"unary_expression : ADDOP unary_expression "<<endl;
 			//change
-			$$->symbol=new Symbol_Info($1->symbol->getName()+$2->symbol->getName(),"unary_ecpression",$2->symbol->get_data_type());
+			$$->symbol=new Symbol_Info("ADDOP unary_expression","unary_ecpression",$2->symbol->get_data_type());
 
 
 
@@ -2194,7 +2212,7 @@ unary_expression : ADDOP unary_expression
 		 		{
 			
 			$$=new TreeNode(nullptr,"unary_expression : NOT unary_expression");
-			$$->symbol=new Symbol_Info("NOT unary_expression","rule");
+			// $$->symbol=new Symbol_Info("NOT unary_expression","rule");
 
 			$$->is_Terminal = false;
 
@@ -2208,7 +2226,7 @@ unary_expression : ADDOP unary_expression
 
 			cout<<"unary_expression : NOT unary_expression "<<endl;
 			//change
-			$$->symbol=new Symbol_Info("!"+$2->symbol->getName(),"unary_expression",$2->symbol->get_data_type());
+			$$->symbol=new Symbol_Info("NOT unary_expression","unary_expression",$2->symbol->get_data_type());
 
 
 
