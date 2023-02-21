@@ -25,11 +25,9 @@ main PROC
 	SUB SP, 2
 		; Line no 6
 	MOV AX, 1
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	MOV i , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 7
 		;calling println
 	MOV AX, i
@@ -43,11 +41,9 @@ main PROC
 	POP DX
 	POP AX
 	ADD AX, DX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	MOV j , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 9
 		;calling println
 	MOV AX, j
@@ -68,11 +64,9 @@ main PROC
 	POP DX
 	POP AX
 	ADD AX, DX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	MOV [BP-12] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 11
 		;calling println
 	MOV AX, [BP-12]
@@ -90,8 +84,7 @@ main PROC
 	PUSH DX
 	POP AX
 	MOV [BP-8] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 14
 		;calling println
 	MOV AX, [BP-8]
@@ -117,8 +110,7 @@ L2:
 L4:
 	POP AX
 	MOV [BP-6] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 17
 		;calling println
 	MOV AX, [BP-6]
@@ -144,8 +136,7 @@ L5:
 L7:
 	POP AX
 	MOV [BP-4] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 20
 		;calling println
 	MOV AX, [BP-4]
@@ -153,13 +144,11 @@ L7:
 	CALL new_line
 		; Line no 22
 	MOV AX, [BP-6]
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	CMP AX, 0
 	JNE L9
 	MOV AX, [BP-4]
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	CMP AX,0
 	JE L8
 L9:
@@ -172,8 +161,7 @@ L8:
 L10:
 	POP AX
 	MOV [BP-2] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 23
 		;calling println
 	MOV AX, [BP-2]
@@ -181,13 +169,11 @@ L10:
 	CALL new_line
 		; Line no 25
 	MOV AX, [BP-6]
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	CMP AX, 0
 	JE L11
 	MOV AX, [BP-4]
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	CMP AX,0
 	JNE L12
 L11:
@@ -200,8 +186,7 @@ L12:
 L13:
 	POP AX
 	MOV [BP-2] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 26
 		;calling println
 	MOV AX, [BP-2]
@@ -221,11 +206,9 @@ L13:
 		; Line no 31
 	MOV AX, [BP-2]
 	NEG AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	MOV [BP-12] , AX
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 		;Line no 32
 		;calling println
 	MOV AX, [BP-12]
@@ -233,8 +216,7 @@ L13:
 	CALL new_line
 		;Line no 37
 	MOV AX, 0
-	PUSH AX
-	POP AX
+		;removed consecutive push and pop of same register
 	JMP L1
 L1:		;returning from a function
 	MOV SP, BP

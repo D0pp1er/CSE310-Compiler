@@ -296,7 +296,6 @@ void Asm_Branching(TreeNode* treeNode,int Lbl_3)
 		int Lbl_1=++label_num;
 		int Lbl_2=++label_num;
 		assembler<<"\tPOP AX\n";
-		//here
 		assembler<<"\tCMP AX, 0\n";
 		assembler<<"\tJNE L"<<Lbl_2<<endl;
 		assembler<<"\tJMP L"<<Lbl_1<<endl;
@@ -842,7 +841,7 @@ void Asm_statement(TreeNode* treeNode)
 		assembler<<"L"<<Lbl_3<<":\n";
 
 	}
-	//here
+	
 	else if(treeNode->symbol->getName()=="FOR LPAREN expression_statement expression_statement expression RPAREN statement")
 	{
 		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
@@ -1036,7 +1035,60 @@ void Assemble(TreeNode* sym)
 	Print_ln_func();
 	Print_output_func();
 	assembler<<"END main\n";
+	assembler.close();
+	ifstream asm_input("1905028_code.asm");
+	string inpt_line;
+	vector<string> codes;
+	ofstream code_optimizer("1905028_optcode.asm");
+	while(getline(asm_input,inpt_line))
+	{
+		codes.push_back(inpt_line);
+	}
+	asm_input.close();
+	//here
+	for(int i=0;i<codes.size();i++)
+	{
+		if((i+1)>=codes.size()){}
+		else if(codes[i].substr(1,3)=="ADD" && codes[i][codes[i].size()-1]=='0')
+		{
+			code_optimizer<<"\t\t;removed add 0\n";
+			continue;
+		}
 
+		else if(codes[i].substr(1,3)=="MUL" && codes[i][codes[i].size()-1]=='1')
+		{
+			code_optimizer<<"\t\t;removed mul 1\n";
+			continue;
+		}
+		else if(codes[i].substr(1,4)=="PUSH" && codes[i+1].substr(1,3)=="POP")
+		{
+			if(codes[i].substr(6)==codes[i+1].substr(5))
+			{
+				code_optimizer<<"\t\t;removed consecutive push and pop of same register\n";
+				i++;
+				continue;
+			}
+		}
+
+		else if(codes[i].substr(1,3)=="MOV" && codes[i+1].substr(1,3)=="MOV")
+		{
+			string l1=codes[i].substr(4);
+			string l2=codes[i+1].substr(4);
+			int j=l1.find(",");
+			int k=l2.find(",");
+			if(l1.substr(1,j-1)==l2.substr(k+2)&&l1.substr(j+2)==l2.substr(1,k-1))
+			{
+				code_optimizer<<codes[i]<<"\n";
+				code_optimizer<<"\t\t; removed repitive mov \n";
+				i++;
+				continue;
+			}
+
+		}
+		code_optimizer<<codes[i]<<"\n";
+	}
+
+	code_optimizer.close();
 
 	 
 
