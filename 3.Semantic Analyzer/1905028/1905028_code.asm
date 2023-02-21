@@ -5,8 +5,6 @@
 	LF EQU 0AH
 	number DB "00000$"
 		;global variables are declared here
-	i DW 1 DUP (0000H)
-	j DW 1 DUP (0000H)
 .CODE
 		; FUNCTIONS ARE DEFINED HERE
 main PROC 
@@ -15,97 +13,42 @@ main PROC
 		; pushing bp
 	PUSH BP
 	MOV BP , SP
-		;Line no 4
+		;Line no 3
 		;variable declaration
 	SUB SP, 2
 	SUB SP, 2
 	SUB SP, 2
-	SUB SP, 2
-	SUB SP, 2
-	SUB SP, 2
+		; Line no 5
+	MOV AX, 3
+	PUSH AX
+	POP AX
+	MOV [BP-6] , AX
+	PUSH AX
+	POP AX
 		; Line no 6
-	MOV AX, 1
-	PUSH AX
-	POP AX
-	MOV i , AX
-	PUSH AX
-	POP AX
-		;Line no 7
-		;calling println
-	MOV AX, i
-	CALL print_output
-	CALL new_line
-		; Line no 8
-	MOV AX, 5
-	PUSH AX
 	MOV AX, 8
 	PUSH AX
-	POP DX
 	POP AX
-	ADD AX, DX
-	PUSH AX
-	POP AX
-	MOV j , AX
+	MOV [BP-4] , AX
 	PUSH AX
 	POP AX
-		;Line no 9
-		;calling println
-	MOV AX, j
-	CALL print_output
-	CALL new_line
-		; Line no 10
-	MOV AX, i
-	PUSH AX
-	MOV AX, 2
-	PUSH AX
-	MOV AX, j
-	PUSH AX
-	POP CX
-	POP AX
-	CWD
-	MUL CX
-	PUSH AX
-	POP DX
-	POP AX
-	ADD AX, DX
+		; Line no 7
+	MOV AX, 6
 	PUSH AX
 	POP AX
-	MOV [BP-12] , AX
+	MOV [BP-2] , AX
 	PUSH AX
 	POP AX
-		;Line no 11
-		;calling println
-	MOV AX, [BP-12]
-	CALL print_output
-	CALL new_line
-		; Line no 13
-	MOV AX, [BP-12]
+		;Line no 10
+		;if else statement
+	MOV AX, [BP-6]
 	PUSH AX
-	MOV AX, 9
-	PUSH AX
-	POP CX
-	POP AX
-	CWD
-	DIV CX
-	PUSH DX
-	POP AX
-	MOV [BP-8] , AX
-	PUSH AX
-	POP AX
-		;Line no 14
-		;calling println
-	MOV AX, [BP-8]
-	CALL print_output
-	CALL new_line
-		; Line no 16
-	MOV AX, [BP-8]
-	PUSH AX
-	MOV AX, [BP-10]
+	MOV AX, 3
 	PUSH AX
 	POP DX
 	POP AX
 	CMP AX,DX
-	JLE L3
+	JE L3
 	JMP L2
 L3:
 	MOV AX, 1
@@ -116,122 +59,154 @@ L2:
 	PUSH AX
 L4:
 	POP AX
-	MOV [BP-6] , AX
-	PUSH AX
-	POP AX
-		;Line no 17
+	CMP AX, 0
+	JE L5
+		;Line no 11
 		;calling println
-	MOV AX, [BP-6]
+	MOV AX, [BP-4]
 	CALL print_output
 	CALL new_line
-		; Line no 19
-	MOV AX, i
+L5:
+		;Line no 14
+		;if else statement
+	MOV AX, [BP-4]
 	PUSH AX
-	MOV AX, j
+	MOV AX, 8
 	PUSH AX
 	POP DX
 	POP AX
 	CMP AX,DX
-	JNE L6
-	JMP L5
-L6:
+	JL L7
+	JMP L6
+L7:
 	MOV AX, 1
 	PUSH AX
-	JMP L7
-L5:
+	JMP L8
+L6:
 	MOV AX, 0
 	PUSH AX
-L7:
-	POP AX
-	MOV [BP-4] , AX
-	PUSH AX
-	POP AX
-		;Line no 20
-		;calling println
-	MOV AX, [BP-4]
-	CALL print_output
-	CALL new_line
-		; Line no 22
-	MOV AX, [BP-6]
-	PUSH AX
+L8:
 	POP AX
 	CMP AX, 0
 	JNE L9
-	MOV AX, [BP-4]
-	PUSH AX
-	POP AX
-	CMP AX,0
-	JE L8
-L9:
-	MOV AX, 1
-	PUSH AX
 	JMP L10
-L8:
-	MOV AX, 0
-	PUSH AX
+L9:
+		;Line no 15
+		;calling println
+	MOV AX, [BP-6]
+	CALL print_output
+	CALL new_line
+	JMP L11
 L10:
-	POP AX
-	MOV [BP-2] , AX
-	PUSH AX
-	POP AX
-		;Line no 23
+		;Line no 18
 		;calling println
 	MOV AX, [BP-2]
 	CALL print_output
 	CALL new_line
-		; Line no 25
-	MOV AX, [BP-6]
+L11:
+		;Line no 21
+		;if else statement
+	MOV AX, [BP-2]
 	PUSH AX
+	MOV AX, 6
+	PUSH AX
+	POP DX
+	POP AX
+	CMP AX,DX
+	JNE L13
+	JMP L12
+L13:
+	MOV AX, 1
+	PUSH AX
+	JMP L14
+L12:
+	MOV AX, 0
+	PUSH AX
+L14:
 	POP AX
 	CMP AX, 0
-	JE L11
+	JNE L15
+	JMP L16
+L15:
+		;Line no 22
+		;calling println
+	MOV AX, [BP-2]
+	CALL print_output
+	CALL new_line
+	JMP L17
+L16:
 	MOV AX, [BP-4]
 	PUSH AX
-	POP AX
-	CMP AX,0
-	JNE L12
-L11:
-	MOV AX, 0
+	MOV AX, 8
 	PUSH AX
-	JMP L13
-L12:
+	POP DX
+	POP AX
+	CMP AX,DX
+	JG L19
+	JMP L18
+L19:
 	MOV AX, 1
 	PUSH AX
-L13:
-	POP AX
-	MOV [BP-2] , AX
+	JMP L20
+L18:
+	MOV AX, 0
 	PUSH AX
+L20:
 	POP AX
-		;Line no 26
+	CMP AX, 0
+	JNE L22
+	JMP L21
+L22:
+		;Line no 25
 		;calling println
-	MOV AX, [BP-2]
+	MOV AX, [BP-4]
 	CALL print_output
 	CALL new_line
-		; Line no 28
-	MOV AX, [BP-2]
+	JMP L17
+L21:
+	MOV AX, [BP-6]
 	PUSH AX
-	INC AX
-	MOV [BP-2] , AX
+	MOV AX, 5
+	PUSH AX
+	POP DX
 	POP AX
-		;Line no 29
+	CMP AX,DX
+	JL L24
+	JMP L23
+L24:
+	MOV AX, 1
+	PUSH AX
+	JMP L25
+L23:
+	MOV AX, 0
+	PUSH AX
+L25:
+	POP AX
+	CMP AX, 0
+	JNE L27
+	JMP L26
+L27:
+		;Line no 28
 		;calling println
-	MOV AX, [BP-2]
+	MOV AX, [BP-6]
 	CALL print_output
 	CALL new_line
+	JMP L17
+L26:
 		; Line no 31
-	MOV AX, [BP-2]
-	NEG AX
+	MOV AX, 0
 	PUSH AX
 	POP AX
-	MOV [BP-12] , AX
+	MOV [BP-2] , AX
 	PUSH AX
 	POP AX
 		;Line no 32
 		;calling println
-	MOV AX, [BP-12]
+	MOV AX, [BP-2]
 	CALL print_output
 	CALL new_line
-		;Line no 37
+L17:
+		;Line no 36
 	MOV AX, 0
 	PUSH AX
 	POP AX

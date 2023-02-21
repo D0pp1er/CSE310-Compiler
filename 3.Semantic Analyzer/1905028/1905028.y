@@ -49,7 +49,7 @@ void Asm_unary_exprssn(TreeNode*);
 void Asm_factor(TreeNode*);
 void Asm_arg_list(TreeNode*);
 void Asm_args(TreeNode*);
-// void Asm_Branching(TreeNode*);
+void Asm_Branching(TreeNode*,int);
 
 
 void yyerror(char *s)
@@ -287,6 +287,43 @@ void Print_output_func()
 	assembler<<"\txor dx,dx\n\tdiv bx\n\tmov [si],dl\n\tadd [si],'0'\n\tdec si\n\tcmp ax,0\n\tjne print\n\tinc si\n\tlea dx,si\n\tmov ah,9\n\tint 21h\n\tpop si\n";
 	assembler<<"\tpop dx\n\tpop cx\n\tpop bx\n\tpop ax\n\tret\n\tnegate:\n\tpush ax\n\tmov ah,2\n\tmov dl,'-'\n\tint 21h\n\tpop ax\n\tneg ax\n\tjmp print\nprint_output endp\n";
 }
+
+void Asm_Branching(TreeNode* treeNode,int Lbl_3)
+{
+	if(treeNode->symbol->getName()=="IF LPAREN expression RPAREN statement ELSE statement")
+	{
+		Asm_exprssn(treeNode->childlist[2]);
+		int Lbl_1=++label_num;
+		int Lbl_2=++label_num;
+		assembler<<"\tPOP AX\n";
+		//here
+		assembler<<"\tCMP AX, 0\n";
+		assembler<<"\tJNE L"<<Lbl_2<<endl;
+		assembler<<"\tJMP L"<<Lbl_1<<endl;
+		assembler<<"L"<<Lbl_2<<":\n";
+		Asm_statement(treeNode->childlist[4]);
+		assembler<<"\tJMP L"<<Lbl_3<<endl;
+		assembler<<"L"<<Lbl_1<<":\n";
+		Asm_Branching(treeNode->childlist[6],Lbl_3);
+
+	}
+
+	else if(treeNode->symbol->getName()=="IF LPAREN expression RPAREN statement")
+	{
+		Asm_exprssn(treeNode->childlist[2]);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX, 0\n";
+		assembler<<"\tJE L"<<Lbl_3<<endl;
+		Asm_statement(treeNode->childlist[4]);
+	}
+
+	else
+	{
+		Asm_statement(treeNode);
+	}
+}
+
+
 
 void Asm_declaration_list(TreeNode* treeNode)
 {
@@ -770,7 +807,41 @@ void Asm_statement(TreeNode* treeNode)
 		assembler<<"\tPOP AX\n";
 		assembler<<"\tJMP L"<<ret_label<<endl;
 	}
+	
+
+	else if(treeNode->symbol->getName()=="IF LPAREN expression RPAREN statement")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		assembler<<"\t\t;if else statement\n";
+		Asm_exprssn(treeNode->childlist[2]);
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX, 0\n";
+		int Lbl_1=++label_num;
+		assembler<<"\tJE L"<<Lbl_1<<endl;
+		Asm_statement(treeNode->childlist[4]);
+		assembler<<"L"<<Lbl_1<<":\n";
+	}
 	//here
+	else if(treeNode->symbol->getName()=="IF LPAREN expression RPAREN statement ELSE statement")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		assembler<<"\t\t;if else statement\n";
+		Asm_exprssn(treeNode->childlist[2]);
+		int Lbl_2=++label_num;
+		int Lbl_1=++label_num;
+		int Lbl_3=++label_num;
+		assembler<<"\tPOP AX\n";
+		assembler<<"\tCMP AX, 0\n";
+		assembler<<"\tJNE L"<<Lbl_2<<endl;
+		assembler<<"\tJMP L"<<Lbl_1<<endl;
+		assembler<<"L"<<Lbl_2<<":\n";
+		Asm_statement(treeNode->childlist[4]);
+		assembler<<"\tJMP L"<<Lbl_3<<endl;
+		assembler<<"L"<<Lbl_1<<":\n";
+		Asm_Branching(treeNode->childlist[6],Lbl_3);
+		assembler<<"L"<<Lbl_3<<":\n";
+
+	}
 
 
 
