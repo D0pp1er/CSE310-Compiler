@@ -219,7 +219,18 @@ ESCAPE \\0|\\v|\\b|\\r|\\f|\\\"|\\\'|\\\\|\\a|\\t|\\n
 //	cout<<tn->output_text<<endl;
 
 }
+"println" {
+	Print_log(line_count,Uppercase(yytext),yytext);
+	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");
+	tn->first_line= tn->last_line=yylineno;
+	tn->is_Terminal=true;		
+	tn->output_text+=(to_string(tn->first_line)+">");
 
+	yylval.treeNode=tn;
+//delete tn;
+	return PRINTLN;
+
+}
 "break" {
 	Print_log(line_count,Uppercase(yytext),yytext);
 	TreeNode *tn=new TreeNode(new Symbol_Info(yytext,""+Uppercase(yytext)),Uppercase(yytext)+" : "+yytext+"\t"+"<Line: ");

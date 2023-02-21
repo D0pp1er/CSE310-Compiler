@@ -737,6 +737,21 @@ void Asm_statement(TreeNode* treeNode)
 		Asm_exprssn_statement(treeNode->childlist[0]);
 	}
 	//incomplete
+	else if(treeNode->symbol->getName()=="PRINTLN LPAREN ID RPAREN SEMICOLON")
+	{
+		assembler<<"\t\t;Line no "<<treeNode->first_line<<endl;
+		string name=treeNode->childlist[2]->symbol->getName();
+		Symbol_Info* sym=symbol_table.Lookup(name);
+		string temp="";
+		if(sym->stkoffset==0)temp=sym->getName();
+		else if(sym->stkoffset>0)temp="[BP-"+to_string(sym->stkoffset)+"]";
+		else temp="[BP+"+to_string((sym->stkoffset)*(-1))+"]";
+		assembler<<"\t\t;calling println\n";
+		assembler<<"\tMOV AX, "<<temp<<endl;
+		assembler<<"\tCALL print_output\n";
+		assembler<<"\tCALL new_line\n";
+
+	}
 
 
 
