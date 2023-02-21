@@ -1,0 +1,3 @@
+Line# 5: Type mismatch for argument 1 of 'func'
+Line# 12: Type mismatch for argument 1 of 'func'
+Line# 17: Type mismatch for argument 1 of 'func'

@@ -5,8 +5,6 @@
 	LF EQU 0AH
 	number DB "00000$"
 		;global variables are declared here
-	i DW 1 DUP (0000H)
-	j DW 1 DUP (0000H)
 .CODE
 		; FUNCTIONS ARE DEFINED HERE
 main PROC 
@@ -15,206 +13,22 @@ main PROC
 		; pushing bp
 	PUSH BP
 	MOV BP , SP
-		;Line no 4
+		;Line no 16
 		;variable declaration
 	SUB SP, 2
-	SUB SP, 2
-	SUB SP, 2
-	SUB SP, 2
-	SUB SP, 2
-	SUB SP, 2
-		; Line no 6
-	MOV AX, 1
+		; Line no 17
+	MOV AX, 7
+	PUSH AX
+	CALL func
 		;removed consecutive push and pop of same register
-	MOV i , AX
-		;removed consecutive push and pop of same register
-		;Line no 7
-		;calling println
-	MOV AX, i
-	CALL print_output
-	CALL new_line
-		; Line no 8
-	MOV AX, 5
-	PUSH AX
-	MOV AX, 8
-	PUSH AX
-	POP DX
-	POP AX
-	ADD AX, DX
-		;removed consecutive push and pop of same register
-	MOV j , AX
-		;removed consecutive push and pop of same register
-		;Line no 9
-		;calling println
-	MOV AX, j
-	CALL print_output
-	CALL new_line
-		; Line no 10
-	MOV AX, i
-	PUSH AX
-	MOV AX, 2
-	PUSH AX
-	MOV AX, j
-	PUSH AX
-	POP CX
-	POP AX
-	CWD
-	MUL CX
-	PUSH AX
-	POP DX
-	POP AX
-	ADD AX, DX
-		;removed consecutive push and pop of same register
-	MOV [BP-12] , AX
-		;removed consecutive push and pop of same register
-		;Line no 11
-		;calling println
-	MOV AX, [BP-12]
-	CALL print_output
-	CALL new_line
-		; Line no 13
-	MOV AX, [BP-12]
-	PUSH AX
-	MOV AX, 9
-	PUSH AX
-	POP CX
-	POP AX
-	CWD
-	DIV CX
-	PUSH DX
-	POP AX
-	MOV [BP-8] , AX
-		;removed consecutive push and pop of same register
-		;Line no 14
-		;calling println
-	MOV AX, [BP-8]
-	CALL print_output
-	CALL new_line
-		; Line no 16
-	MOV AX, [BP-8]
-	PUSH AX
-	MOV AX, [BP-10]
-	PUSH AX
-	POP DX
-	POP AX
-	CMP AX,DX
-	JLE L3
-	JMP L2
-L3:
-	MOV AX, 1
-	PUSH AX
-	JMP L4
-L2:
-	MOV AX, 0
-	PUSH AX
-L4:
-	POP AX
-	MOV [BP-6] , AX
-		;removed consecutive push and pop of same register
-		;Line no 17
-		;calling println
-	MOV AX, [BP-6]
-	CALL print_output
-	CALL new_line
-		; Line no 19
-	MOV AX, i
-	PUSH AX
-	MOV AX, j
-	PUSH AX
-	POP DX
-	POP AX
-	CMP AX,DX
-	JNE L6
-	JMP L5
-L6:
-	MOV AX, 1
-	PUSH AX
-	JMP L7
-L5:
-	MOV AX, 0
-	PUSH AX
-L7:
-	POP AX
-	MOV [BP-4] , AX
-		;removed consecutive push and pop of same register
-		;Line no 20
-		;calling println
-	MOV AX, [BP-4]
-	CALL print_output
-	CALL new_line
-		; Line no 22
-	MOV AX, [BP-6]
-		;removed consecutive push and pop of same register
-	CMP AX, 0
-	JNE L9
-	MOV AX, [BP-4]
-		;removed consecutive push and pop of same register
-	CMP AX,0
-	JE L8
-L9:
-	MOV AX, 1
-	PUSH AX
-	JMP L10
-L8:
-	MOV AX, 0
-	PUSH AX
-L10:
-	POP AX
 	MOV [BP-2] , AX
 		;removed consecutive push and pop of same register
-		;Line no 23
+		;Line no 18
 		;calling println
 	MOV AX, [BP-2]
 	CALL print_output
 	CALL new_line
-		; Line no 25
-	MOV AX, [BP-6]
-		;removed consecutive push and pop of same register
-	CMP AX, 0
-	JE L11
-	MOV AX, [BP-4]
-		;removed consecutive push and pop of same register
-	CMP AX,0
-	JNE L12
-L11:
-	MOV AX, 0
-	PUSH AX
-	JMP L13
-L12:
-	MOV AX, 1
-	PUSH AX
-L13:
-	POP AX
-	MOV [BP-2] , AX
-		;removed consecutive push and pop of same register
-		;Line no 26
-		;calling println
-	MOV AX, [BP-2]
-	CALL print_output
-	CALL new_line
-		; Line no 28
-	MOV AX, [BP-2]
-	PUSH AX
-	INC AX
-	MOV [BP-2] , AX
-	POP AX
-		;Line no 29
-		;calling println
-	MOV AX, [BP-2]
-	CALL print_output
-	CALL new_line
-		; Line no 31
-	MOV AX, [BP-2]
-	NEG AX
-		;removed consecutive push and pop of same register
-	MOV [BP-12] , AX
-		;removed consecutive push and pop of same register
-		;Line no 32
-		;calling println
-	MOV AX, [BP-12]
-	CALL print_output
-	CALL new_line
-		;Line no 37
+		;Line no 19
 	MOV AX, 0
 		;removed consecutive push and pop of same register
 	JMP L1
@@ -224,6 +38,132 @@ L1:		;returning from a function
 	MOV AX,4CH
 	INT 21H
 main ENDP
+		; FUNCTIONS ARE DEFINED HERE
+func2 PROC 
+		; pushing bp
+	PUSH BP
+	MOV BP , SP
+		;Line no 9
+		;variable declaration
+	SUB SP, 2
+		;Line no 10
+		;if else statement
+	MOV AX, [BP+4]
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP DX
+	POP AX
+	CMP AX,DX
+	JE L4
+	JMP L3
+L4:
+	MOV AX, 1
+	PUSH AX
+	JMP L5
+L3:
+	MOV AX, 0
+	PUSH AX
+L5:
+	POP AX
+	CMP AX, 0
+	JE L6
+		;Line no 10
+	MOV AX, 0
+		;removed consecutive push and pop of same register
+	JMP L2
+L6:
+		; Line no 11
+	MOV AX, [BP+4]
+		;removed consecutive push and pop of same register
+	MOV [BP-2] , AX
+		;removed consecutive push and pop of same register
+		;Line no 12
+	MOV AX, [BP+4]
+	PUSH AX
+	MOV AX, 1
+	PUSH AX
+	POP DX
+	POP AX
+	SUB AX, DX
+	PUSH AX
+	CALL func
+	PUSH AX
+	MOV AX, [BP-2]
+	PUSH AX
+	POP DX
+	POP AX
+	ADD AX, DX
+		;removed consecutive push and pop of same register
+	JMP L2
+L2:		;returning from a function
+	MOV SP, BP
+	POP BP
+	RET 2
+func2 ENDP
+		; FUNCTIONS ARE DEFINED HERE
+func PROC 
+		; pushing bp
+	PUSH BP
+	MOV BP , SP
+		;Line no 2
+		;variable declaration
+	SUB SP, 2
+		;Line no 3
+		;if else statement
+	MOV AX, [BP+4]
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP DX
+	POP AX
+	CMP AX,DX
+	JE L9
+	JMP L8
+L9:
+	MOV AX, 1
+	PUSH AX
+	JMP L10
+L8:
+	MOV AX, 0
+	PUSH AX
+L10:
+	POP AX
+	CMP AX, 0
+	JE L11
+		;Line no 3
+	MOV AX, 0
+		;removed consecutive push and pop of same register
+	JMP L7
+L11:
+		; Line no 4
+	MOV AX, [BP+4]
+		;removed consecutive push and pop of same register
+	MOV [BP-2] , AX
+		;removed consecutive push and pop of same register
+		;Line no 5
+	MOV AX, [BP+4]
+	PUSH AX
+	MOV AX, 1
+	PUSH AX
+	POP DX
+	POP AX
+	SUB AX, DX
+	PUSH AX
+	CALL func
+	PUSH AX
+	MOV AX, [BP-2]
+	PUSH AX
+	POP DX
+	POP AX
+	ADD AX, DX
+		;removed consecutive push and pop of same register
+	JMP L7
+L7:		;returning from a function
+	MOV SP, BP
+	POP BP
+	RET 2
+func ENDP
 new_line proc
 	push ax
 	push dx
